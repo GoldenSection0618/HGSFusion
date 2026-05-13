@@ -302,3 +302,40 @@
   - `pcdet/datasets/dataset.py` remains to be included in branch commit as approved manual fix.
 - reason: cleanup pass requested by user to finalize branch state and intent documentation.
 - next action or blocker: commit cleanup note plus `dataset.py` manual fix, while keeping `data` symlink untracked.
+
+### 2026-05-13T15:13:31+08:00
+- current branch: `hgsfusion-aprime-b-setup`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  export HGSFUSION_WORKDIR=/home/user/HGSFusion_research
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  export HGSFUSION_DATA_ROOT=/home/user/HGSFusion_research/data
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:$PATH
+  export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.9/site-packages/torch/lib:/usr/local/cuda-11.7/lib64:${LD_LIBRARY_PATH:-}
+  hash -r
+  git branch --show-current
+  git status --short
+  python --version
+  python - <<'PY' ... torch diagnostics ... PY
+  echo "CUDA_HOME=${CUDA_HOME:-}"
+  which nvcc
+  nvcc --version
+  ```
+- exit status: `0`
+- important output excerpt:
+  - branch: `hgsfusion-aprime-b-setup`
+  - clean git status.
+  - `Python 3.9.23`
+  - `torch 1.13.1+cu117`, `torch.version.cuda 11.7`, `torch.cuda.is_available True`
+  - `CUDA_HOME=/usr/local/cuda-11.7`
+  - `which nvcc -> /usr/local/cuda-11.7/bin/nvcc`
+  - `nvcc release 11.7`.
+- files changed:
+  - `AGENT_EXECUTION_LOG.md` (append-only).
+- reason: execute C0-1 and verify environment/toolchain context before info generation.
+- next action or blocker: run C0-2 to confirm local `data -> ../data` interface and untracked status.
