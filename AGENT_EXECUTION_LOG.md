@@ -359,3 +359,29 @@
   - `AGENT_EXECUTION_LOG.md` (append-only).
 - reason: execute C0-2 and confirm repository-local data interface.
 - next action or blocker: run C0-3 and inspect dataset info-generation entry points.
+
+### 2026-05-13T15:14:27+08:00
+- current branch: `hgsfusion-aprime-b-setup`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+  grep -R "create.*infos\|kitti_infos\|__main__" -n pcdet/datasets/kitti | head -200
+  tail -180 pcdet/datasets/kitti/vod_dataset.py
+  tail -180 pcdet/datasets/kitti/tj4d_dataset.py
+  ```
+- exit status: `0`
+- important output excerpt:
+  - both datasets define `create_kitti_infos(...)` and `if __name__ == '__main__'` handlers.
+  - supported entry form is:
+    - `python -m pcdet.datasets.kitti.vod_dataset create_kitti_infos <dataset_cfg_yaml>`
+    - `python -m pcdet.datasets.kitti.tj4d_dataset create_kitti_infos <dataset_cfg_yaml>`
+  - module execution **without arguments** does not trigger info generation.
+  - output save paths are repository-root relative:
+    - `ROOT_DIR / data / vod_radar_5frames`
+    - `ROOT_DIR / data / tj4d`
+  - no hardcoded author-machine path found inside these generation entry points.
+- files changed:
+  - `AGENT_EXECUTION_LOG.md` (append-only).
+- reason: execute C0-3 and derive the repository-native info-generation commands.
+- next action or blocker: run C0-4 pre-generation data checks.
