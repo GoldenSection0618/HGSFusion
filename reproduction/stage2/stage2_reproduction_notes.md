@@ -105,6 +105,27 @@ Local runtime artifacts currently kept (untracked):
 
 ## Stage 2 Results
 
+## Bug Root Cause And Fix
+
+Root cause of the evaluation-finalization crash (`exit 139`):
+- `dataset.evaluation` hit a segfault in numba CUDA JIT initialization while importing `pcdet/datasets/kitti/kitti_object_eval_python/rotate_iou.py`.
+- Faulthandler stacks point to `numba.cuda...compile_device` from `rotate_iou.py` import path.
+- In VoD and TJ4D dataset wrappers, an unnecessary import of `kitti_object_eval_python.eval` was executed before actual result reporting.
+- In TJ4D default eval (`bbox/bev/3d`), BEV/3D IoU path also imported GPU rotate IoU and triggered the same failure on this environment.
+- After removing that segfault trigger, an additional Stage 2 subset-only issue surfaced: weather-split evaluation attempted to evaluate an empty subset and raised `ZeroDivisionError`.
+
+Applied minimal fix:
+- Removed unused `kitti_object_eval_python.eval` import from:
+  - `pcdet/datasets/kitti/vod_dataset.py` (`evaluation`)
+  - `pcdet/datasets/kitti/tj4d_dataset.py` (`evaluation`)
+- Switched TJ4D BEV/3D IoU overlap helper from GPU numba rotate IoU to existing CPU `rotate_iou_eval`:
+  - `pcdet/datasets/kitti/tj4d_utils.py`
+- Added empty-weather-subset guard in `pcdet/datasets/kitti/tj4d_dataset.py` to skip subsets with zero matched samples instead of dividing by zero.
+
+Post-fix targeted replay evidence:
+- VoD `dataset.evaluation` replay on existing `result.pkl`: returns successfully (no segfault).
+- TJ4D `dataset.evaluation` replay on existing `result.pkl`: returns successfully (no segfault, no zero-division).
+
 ### Stage 2A: VoD subset evaluation
 
 Status: failed at `dataset.evaluation` stage (process exit 139)

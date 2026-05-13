@@ -312,3 +312,80 @@ Out of scope:
   - `reproduction/stage2/stage2_execution_log.md`
 - reason: Stage 2 continuation baseline check before segfault root-cause debugging
 - next action or blocker: isolate segfault location in evaluation path and collect direct code/runtime evidence
+
+### 2026-05-14T00:00:36+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  # inspect evaluation tail markers and code path
+  rg -n "Result is saved|Evaluation done|evaluation\(" tools/eval_utils/eval_utils.py pcdet/datasets/kitti -g '*.py'
+
+  # isolate crash by replaying evaluation only (no inference)
+  python -X faulthandler - <<'PY'
+  ... load subset cfg + dataset + existing result.pkl ...
+  dataset.evaluation(...)
+  PY
+
+  # reproduce for both vod and tj4d
+  # /tmp/stage2_debug_evalonly_vod.txt
+  # /tmp/stage2_debug_evalonly_tj4d.txt
+
+  # inspect direct eval implementation and utility functions
+  sed -n '360,520p' pcdet/datasets/kitti/vod_dataset.py
+  sed -n '450,620p' pcdet/datasets/kitti/tj4d_dataset.py
+  sed -n '520,920p' pcdet/datasets/kitti/tj4d_utils.py
+
+  # test tj4d eval types in isolation
+  python -X faulthandler - <<'PY'
+  ... tj4d_eval(..., eval_types=['bbox']) ...
+  ... tj4d_eval(... default ['bbox','bev','3d']) ...
+  PY
+  # /tmp/stage2_debug_tj4d_evaltypes.txt
+  ```
+- exit status: mixed (expected during diagnosis)
+- important output excerpt:
+  - both eval-only replays crashed with `Segmentation fault` before returning from `dataset.evaluation`
+  - faulthandler stack points to numba CUDA path during import/compile:
+    - `numba.cuda...compile_device`
+    - `pcdet/datasets/kitti/kitti_object_eval_python/rotate_iou.py:24`
+  - VoD crash trigger: unnecessary import in `vod_dataset.evaluation`:
+    - `from .kitti_object_eval_python import eval as kitti_eval`
+  - TJ4D crash triggers:
+    - same unnecessary import in `tj4d_dataset.evaluation`
+    - default TJ4D BEV/3D eval path importing GPU rotate IoU in `tj4d_utils.py`
+  - additional issue exposed after removing segfault trigger:
+    - weather-split loop can call eval with empty subset -> `ZeroDivisionError` in `get_split_parts`
+- files changed:
+  - `pcdet/datasets/kitti/vod_dataset.py`
+  - `pcdet/datasets/kitti/tj4d_dataset.py`
+  - `pcdet/datasets/kitti/tj4d_utils.py`
+- reason: locate and fix real Stage 2 evaluation-finalization crash in repository code path
+- next action or blocker: rerun full VoD/TJ4D subset20 `tools/test.py` after fixes and revalidate completion markers
+
+### 2026-05-14T00:01:15+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+
+  git status --short
+  git diff --stat
+  git diff -- README.md README_UPSTREAM.md reproduction/stage0 reproduction/stage1 || true
+  find . \( -path './output' -o -path '*/final_result' -o -name 'result.pkl' -o -name '*.pyc' -o -name '__pycache__' -o -name 'core*' \) -print
+  find -L data -name 'kitti_infos_stage2_*.pkl' -print || true
+  ```
+- exit status: `0`
+- important output excerpt:
+  - modified tracked files limited to Stage 2 docs and targeted evaluation-source fixes
+  - no diffs in `README.md`, `README_UPSTREAM.md`, `reproduction/stage0`, `reproduction/stage1`
+  - runtime artifacts remain local and unstaged under `output/` and data symlink roots
+- files changed:
+  - `pcdet/datasets/kitti/vod_dataset.py`
+  - `pcdet/datasets/kitti/tj4d_dataset.py`
+  - `pcdet/datasets/kitti/tj4d_utils.py`
+  - `reproduction/stage2/stage2_execution_log.md`
+  - `reproduction/stage2/stage2_reproduction_notes.md`
+- reason: hygiene check before committing Stage 2 crash-fix changes
+- next action or blocker: commit fix set and rerun full Stage 2 VoD/TJ4D official-checkpoint subset evaluation
