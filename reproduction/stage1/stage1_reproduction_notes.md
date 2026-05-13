@@ -81,7 +81,7 @@ Do not commit:
 - Official VoD checkpoint path used by Stage 1:
   - link path: `/home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth`
   - resolved target: `/mnt/e/HGSFusion_datasets/raw/hgsfusion_official_assets/hgsfusion_vod.pth`
-- Official TJ4D checkpoint candidate path discovered in checkpoints root:
+- Official TJ4D checkpoint path used by Stage 1:
   - link path: `/home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth`
   - resolved target: `/mnt/e/HGSFusion_datasets/raw/hgsfusion_official_assets/hgsfusion_tj4d.pth`
 
@@ -111,19 +111,19 @@ VoD key outcomes:
   - `pred_scores` shape `(3,)`
   - `pred_labels` shape `(3,)`
 
-### Minimal Compatibility Fixes Applied Outside `reproduction/stage1/`
+## Stage 1 Environment Delta
 
-The following changes were required to unblock Stage 1 model build/runtime and were intentionally kept minimal:
+Compared with Stage 0, Stage 1 required one additional model-runtime dependency:
 
-- environment dependency fix:
-  - installed `spconv-cu117` in `hgsfusion_a17` to satisfy model import/runtime dependency.
-- code compatibility fixes:
-  - file changed: `pcdet/models/backbones_3d/vfe/fusion_vfe.py`
-  - fix 1: remove import dependency on missing module `feature_sampler`; keep backward-compatible alias `GaussianSampler -> SimpleSampler`.
-  - fix 2: make `RadarOccupancy2D` optional import (current VoD/TJ4D configs use `RadarOccupancy2DV2`).
-  - fix 3: make `ForegroundSampler` optional import; only raise if config explicitly enables it.
+- `spconv-cu117`
+- installed dependency: `cumm-cu117`
 
-These fixes do not alter model topology for current configs and do not disable core modules used by current Stage 1 paths.
+Reason:
+
+- `pcdet.models` import path requires `spconv` during model build.
+- This was not covered by Stage 0 because Stage 0 stopped at environment, CUDA extensions, dataset infos, and minimal dataloader validation.
+
+This is a runtime dependency for model construction and forward validation, not a data artifact.
 
 ### Runtime Library Note
 
@@ -158,9 +158,43 @@ TJ4D split interpretation remains unchanged:
 - current `kitti_infos_val.pkl` is generated from the test split fallback because `ImageSets/val.txt` is absent in the current dataset package.
 - this is not a standard TJ4D validation split.
 
+### Minimal Compatibility Fixes Applied Outside `reproduction/stage1/`
+
+The following changes were required to unblock Stage 1 model build/runtime and were intentionally kept minimal:
+
+- environment dependency fix:
+  - installed `spconv-cu117` in `hgsfusion_a17` to satisfy model import/runtime dependency.
+- code compatibility fixes:
+  - file changed: `pcdet/models/backbones_3d/vfe/fusion_vfe.py`
+  - fix 1: remove import dependency on missing module `feature_sampler`; keep backward-compatible alias `GaussianSampler -> SimpleSampler`.
+  - fix 2: make `RadarOccupancy2D` optional import (current VoD/TJ4D configs use `RadarOccupancy2DV2`).
+  - fix 3: make `ForegroundSampler` optional import; only raise if config explicitly enables it.
+
+These fixes do not alter model topology for current configs and do not disable core modules used by current Stage 1 paths.
+
 ### Stage 1 Completion Status
 
 Stage 1 completed: checkpoint/config/model-runtime dry run passed for VoD and TJ4D.
+
+## Files Changed In Stage 1
+
+Expected committed files:
+
+- `reproduction/stage1/stage1_execution_log.md`
+- `reproduction/stage1/stage1_reproduction_notes.md`
+- `reproduction/stage1/scripts/stage1_path_artifact_audit.py`
+- `reproduction/stage1/scripts/stage1_batch_contract_check.py`
+- `reproduction/stage1/scripts/stage1_checkpoint_audit.py`
+- `reproduction/stage1/scripts/stage1_single_batch_forward.py`
+- `pcdet/models/backbones_3d/vfe/fusion_vfe.py`
+
+No committed changes should exist in:
+
+- `README.md`
+- `README_UPSTREAM.md`
+- `reproduction/stage0/`
+- `data/`
+- `output/`
 
 ### Next Stage Boundary
 
