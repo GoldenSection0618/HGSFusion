@@ -49,3 +49,38 @@ Out of scope:
   - `reproduction/stage2/stage2_reproduction_notes.md`
 - reason: create Stage 2 branch context and initialize Stage 2 logging before running closure checks
 - next action or blocker: run Stage 1 closure check command block and append results
+
+### 2026-05-13T23:32:30+08:00
+- current branch:   `hgsfusion-stage2-limited-eval-dryrun`
+- working directory:   `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+
+  pwd
+  git branch --show-current
+  git status --short
+  git log --oneline --decorate -10
+
+  git diff --stat main...HEAD || true
+  git diff -- README.md README_UPSTREAM.md reproduction/stage0 reproduction/stage1 || true
+  git diff -- pcdet/models/backbones_3d/vfe/fusion_vfe.py || true
+
+  find . \( -path './output' -o -name '*.pyc' -o -name '__pycache__' \) -print
+
+  git merge-base --is-ancestor b05772b main
+  git branch --contains b05772b
+  ```
+- exit status: `0`
+- important output excerpt:
+  - current branch = `hgsfusion-stage2-limited-eval-dryrun`
+  - working tree was clean before closure log append
+  - `main...HEAD` diff limited to Stage 2 docs at this moment
+  - no diffs in `README.md`, `README_UPSTREAM.md`, `reproduction/stage0`, `reproduction/stage1`
+  - no diff in `pcdet/models/backbones_3d/vfe/fusion_vfe.py`
+  - local runtime caches/pyc directories exist but were not staged
+  - `git merge-base --is-ancestor b05772b main` succeeded (exit 0), confirming Stage 1 anchor commit is contained in `main`
+- files changed:
+  - `reproduction/stage2/stage2_execution_log.md`
+- reason: Stage 1 closure check after Stage 2 log initialization
+- next action or blocker: run TJ4D split evidence check and create Stage 2 helper scripts
