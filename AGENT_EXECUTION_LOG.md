@@ -385,3 +385,40 @@
   - `AGENT_EXECUTION_LOG.md` (append-only).
 - reason: execute C0-3 and derive the repository-native info-generation commands.
 - next action or blocker: run C0-4 pre-generation data checks.
+
+### 2026-05-13T15:22:38+08:00
+- current branch: `hgsfusion-aprime-b-setup`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+  find data/vod_radar_5frames/ImageSets -maxdepth 1 -type f -print -exec wc -l {} \;
+  find data/tj4d/ImageSets -maxdepth 1 -type f -print -exec wc -l {} \;
+  ls -la data/vod_radar_5frames/training
+  ls -la data/vod_radar_5frames/testing || true
+  ls -la data/tj4d/training
+  ls -la data/tj4d/testing || true
+  find data/vod_radar_5frames/training/mask_maskformer_with_label_k_1_gauss_k_4_uniform -type f | head
+  find data/tj4d/training/mask_maskformer_with_label_k_1_gauss_k_4_uniform -type f | head
+  find data/vod_radar_5frames -maxdepth 1 -name 'kitti_infos_*.pkl' -print
+  find data/tj4d -maxdepth 1 -name 'kitti_infos_*.pkl' -print
+  # supplement for symlink traversal
+  find -L data/vod_radar_5frames/ImageSets -maxdepth 1 -type f -print -exec wc -l {} \;
+  find -L data/tj4d/ImageSets -maxdepth 1 -type f -print -exec wc -l {} \;
+  find -L data/vod_radar_5frames/training/mask_maskformer_with_label_k_1_gauss_k_4_uniform -type f | head
+  find -L data/tj4d/training/mask_maskformer_with_label_k_1_gauss_k_4_uniform -type f | head
+  find -L data/tj4d -maxdepth 1 -name 'kitti_infos_*.pkl' -print
+  ```
+- exit status: `0`
+- important output excerpt:
+  - VoD `ImageSets` files exist with non-zero counts (`train/val/test/train_val/full`).
+  - TJ4D `ImageSets` files exist with non-zero counts (`train/test/trainval/all`).
+  - both datasets have `training` and `testing` links/directories available.
+  - official hybrid point directories are present and populated for VoD and TJ4D.
+  - existing VoD info files detected under `data/vod_radar_5frames`:
+    - `kitti_infos_train.pkl`, `kitti_infos_val.pkl`, `kitti_infos_trainval.pkl`, `kitti_infos_test.pkl`
+  - TJ4D had no `kitti_infos_*.pkl` yet before this C0-5 run.
+- files changed:
+  - `AGENT_EXECUTION_LOG.md` (append-only).
+- reason: execute C0-4 and confirm data/layout prerequisites before generation.
+- next action or blocker: run C0-5 generation commands with repository entry points to ensure both VoD and TJ4D infos are present and consistent.
