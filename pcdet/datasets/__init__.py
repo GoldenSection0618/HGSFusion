@@ -1,4 +1,5 @@
 import torch
+import importlib
 from functools import partial
 from torch.utils.data import DataLoader
 from torch.utils.data import DistributedSampler as _DistributedSampler
@@ -7,15 +8,38 @@ from pcdet.utils import common_utils
 
 from .dataset import DatasetTemplate
 from .kitti.kitti_dataset import KittiDataset
-from .nuscenes.nuscenes_dataset import NuScenesDataset
-from .waymo.waymo_dataset import WaymoDataset
-from .pandaset.pandaset_dataset import PandasetDataset
-from .lyft.lyft_dataset import LyftDataset
-from .once.once_dataset import ONCEDataset
-from .argo2.argo2_dataset import Argo2Dataset
 from .custom.custom_dataset import CustomDataset
 from pcdet.datasets.kitti.vod_dataset import VODDataset
 from .kitti.tj4d_dataset import TJ4DDataset
+
+
+def _make_missing_dataset_class(dataset_name, dependency_name, import_error):
+    class _MissingDataset:
+        def __init__(self, *args, **kwargs):
+            raise ModuleNotFoundError(
+                f'{dataset_name} requires optional dependency `{dependency_name}`. '
+                f'Please install `{dependency_name}` to use this dataset.'
+            ) from import_error
+
+    _MissingDataset.__name__ = dataset_name
+    return _MissingDataset
+
+
+def _optional_dataset_import(module_name, dataset_name, dependency_name=None):
+    try:
+        module = importlib.import_module(module_name, package=__name__)
+        return getattr(module, dataset_name)
+    except ModuleNotFoundError as e:
+        missing_dep = dependency_name or e.name or module_name
+        return _make_missing_dataset_class(dataset_name, missing_dep, e)
+
+
+NuScenesDataset = _optional_dataset_import('.nuscenes.nuscenes_dataset', 'NuScenesDataset')
+WaymoDataset = _optional_dataset_import('.waymo.waymo_dataset', 'WaymoDataset')
+PandasetDataset = _optional_dataset_import('.pandaset.pandaset_dataset', 'PandasetDataset')
+LyftDataset = _optional_dataset_import('.lyft.lyft_dataset', 'LyftDataset')
+ONCEDataset = _optional_dataset_import('.once.once_dataset', 'ONCEDataset')
+Argo2Dataset = _optional_dataset_import('.argo2.argo2_dataset', 'Argo2Dataset', dependency_name='av2')
 
 __all__ = {
     'DatasetTemplate': DatasetTemplate,
@@ -26,9 +50,9 @@ __all__ = {
     'LyftDataset': LyftDataset,
     'ONCEDataset': ONCEDataset,
     'CustomDataset': CustomDataset,
-    'Argo2Dataset': Argo2Dataset,
     'VODDataset': VODDataset,
-    'TJ4DDataset': TJ4DDataset
+    'TJ4DDataset': TJ4DDataset,
+    'Argo2Dataset': Argo2Dataset
 }
 
 

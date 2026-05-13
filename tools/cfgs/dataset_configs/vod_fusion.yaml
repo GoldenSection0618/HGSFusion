@@ -11,7 +11,7 @@ DATA_SPLIT: {
 }
 
 USE_RADAR_POINTS: True
-DATA_LIDAR_PATH: './data/vod_lidar'
+DATA_LIDAR_PATH: './data/vod_radar_5frames'
 DATA_RADAR_PATH: './data/vod_radar_5frames'
 
 INFO_PATH: {
