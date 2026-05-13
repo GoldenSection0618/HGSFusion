@@ -128,7 +128,7 @@ Post-fix targeted replay evidence:
 
 ### Stage 2A: VoD subset evaluation
 
-Status: failed at `dataset.evaluation` stage (process exit 139)
+Status: passed after evaluation crash fix
 
 - command used:
   - `python tools/test.py --cfg_file reproduction/stage2/local_cfgs/hgsfusion_vod_stage2_subset20.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth --batch_size 1 --workers 0 --extra_tag stage2_vod_subset20 --eval_tag official_ckpt_subset20`
@@ -140,17 +140,17 @@ Status: failed at `dataset.evaluation` stage (process exit 139)
 - result.pkl path: `output/stage2/local_cfgs/hgsfusion_vod_stage2_subset20/stage2_vod_subset20/eval/epoch_no_number/val/official_ckpt_subset20/result.pkl`
 - final_result/data status: exists with `20` prediction txt files
 - log status:
-  - `recall_roi`, `recall_rcnn`, `Average predicted number` present
-  - `Result is saved`, `Evaluation done` missing
+  - `recall_roi`, `recall_rcnn`, `Average predicted number`, `Result is saved`, `Evaluation done` all present
 - pass/fail status:
-  - `tools/test.py` exited `139` (segmentation fault)
-  - stage pass criteria not met
+  - `tools/test.py` exited `0`
+  - `stage2_result_pkl_check.py` passed with `expected-count=20`
+  - `stage2_eval_artifact_check.py` passed
 - interpretation note:
   - this is a controlled subset dry run and not paper metric reproduction
 
 ### Stage 2B: TJ4D subset evaluation
 
-Status: failed at `dataset.evaluation` stage (process exit 139)
+Status: passed after evaluation crash fix
 
 - command used:
   - `python tools/test.py --cfg_file reproduction/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth --batch_size 1 --workers 0 --extra_tag stage2_tj4d_subset20 --eval_tag official_ckpt_subset20`
@@ -162,11 +162,11 @@ Status: failed at `dataset.evaluation` stage (process exit 139)
 - result.pkl path: `output/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20/stage2_tj4d_subset20/eval/epoch_4/val/official_ckpt_subset20/result.pkl`
 - final_result/data status: exists with `20` prediction txt files
 - log status:
-  - `recall_roi`, `recall_rcnn`, `Average predicted number` present
-  - `Result is saved`, `Evaluation done` missing
+  - `recall_roi`, `recall_rcnn`, `Average predicted number`, `Result is saved`, `Evaluation done` all present
 - pass/fail status:
-  - `tools/test.py` exited `139` (segmentation fault)
-  - stage pass criteria not met
+  - `tools/test.py` exited `0`
+  - `stage2_result_pkl_check.py` passed with `expected-count=20`
+  - `stage2_eval_artifact_check.py` passed
 - split interpretation note:
   - TJ4D metric context is official eval split / test-val alias split
   - this is not an independent validation-set metric claim
@@ -182,6 +182,9 @@ Expected committed files:
 - `reproduction/stage2/scripts/stage2_make_eval_subset.py`
 - `reproduction/stage2/scripts/stage2_result_pkl_check.py`
 - `reproduction/stage2/scripts/stage2_eval_artifact_check.py`
+- `pcdet/datasets/kitti/vod_dataset.py` (Stage 2 crash fix)
+- `pcdet/datasets/kitti/tj4d_dataset.py` (Stage 2 crash fix)
+- `pcdet/datasets/kitti/tj4d_utils.py` (Stage 2 crash fix)
 
 No committed changes should exist in:
 

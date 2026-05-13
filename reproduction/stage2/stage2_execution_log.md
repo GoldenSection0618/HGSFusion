@@ -389,3 +389,102 @@ Out of scope:
   - `reproduction/stage2/stage2_reproduction_notes.md`
 - reason: hygiene check before committing Stage 2 crash-fix changes
 - next action or blocker: commit fix set and rerun full Stage 2 VoD/TJ4D official-checkpoint subset evaluation
+
+### 2026-05-14T00:07:38+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  export CUDA_VISIBLE_DEVICES=0
+  export HGSFUSION_WORKDIR=/home/user/HGSFusion_research
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  export HGSFUSION_DATA_ROOT=/home/user/HGSFusion_research/HGSFusion/data
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:$PATH
+  export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.9/site-packages/torch/lib:/usr/local/cuda-11.7/lib64:/usr/lib/wsl/lib:${LD_LIBRARY_PATH:-}
+  export PYTHONFAULTHANDLER=1
+  hash -r
+
+  python tools/test.py     --cfg_file reproduction/stage2/local_cfgs/hgsfusion_vod_stage2_subset20.yaml     --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth     --batch_size 1     --workers 0     --extra_tag stage2_vod_subset20     --eval_tag official_ckpt_subset20
+
+  python reproduction/stage2/scripts/stage2_result_pkl_check.py     --result-pkl output/stage2/local_cfgs/hgsfusion_vod_stage2_subset20/stage2_vod_subset20/eval/epoch_no_number/val/official_ckpt_subset20/result.pkl     --expected-count 20
+
+  python reproduction/stage2/scripts/stage2_eval_artifact_check.py     --eval-dir output/stage2/local_cfgs/hgsfusion_vod_stage2_subset20/stage2_vod_subset20/eval/epoch_no_number/val/official_ckpt_subset20
+  ```
+- exit status: `0`
+- important output excerpt:
+  - `tools/test.py` completed without segfault
+  - eval log contains `Result is saved` and `****************Evaluation done.*****************`
+  - `stage2_result_pkl_check.py`: `num_annotations: 20`
+  - `stage2_eval_artifact_check.py`: all markers true, `artifact_check: PASS`
+- files changed:
+  - local runtime artifact dir refreshed: `output/stage2/local_cfgs/hgsfusion_vod_stage2_subset20/stage2_vod_subset20/eval/epoch_no_number/val/official_ckpt_subset20` (untracked)
+  - `reproduction/stage2/stage2_execution_log.md`
+  - `reproduction/stage2/stage2_reproduction_notes.md` (later update in same milestone)
+- reason: post-fix full Stage 2A VoD official-checkpoint subset20 rerun and validation
+- next action or blocker: run post-fix full Stage 2B TJ4D rerun and validation
+
+### 2026-05-14T00:07:38+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  export CUDA_VISIBLE_DEVICES=0
+  export HGSFUSION_WORKDIR=/home/user/HGSFusion_research
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  export HGSFUSION_DATA_ROOT=/home/user/HGSFusion_research/HGSFusion/data
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:$PATH
+  export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.9/site-packages/torch/lib:/usr/local/cuda-11.7/lib64:/usr/lib/wsl/lib:${LD_LIBRARY_PATH:-}
+  export PYTHONFAULTHANDLER=1
+  hash -r
+
+  python tools/test.py     --cfg_file reproduction/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20.yaml     --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth     --batch_size 1     --workers 0     --extra_tag stage2_tj4d_subset20     --eval_tag official_ckpt_subset20
+
+  python reproduction/stage2/scripts/stage2_result_pkl_check.py     --result-pkl output/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20/stage2_tj4d_subset20/eval/epoch_4/val/official_ckpt_subset20/result.pkl     --expected-count 20
+
+  python reproduction/stage2/scripts/stage2_eval_artifact_check.py     --eval-dir output/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20/stage2_tj4d_subset20/eval/epoch_4/val/official_ckpt_subset20
+  ```
+- exit status: `0`
+- important output excerpt:
+  - `tools/test.py` completed without segfault
+  - eval log contains `Result is saved` and `****************Evaluation done.*****************`
+  - weather split empty-subset handling logged as `No samples matched this weather subset.` for standard/shiny
+  - `stage2_result_pkl_check.py`: `num_annotations: 20`
+  - `stage2_eval_artifact_check.py`: all markers true, `artifact_check: PASS`
+- files changed:
+  - local runtime artifact dir refreshed: `output/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20/stage2_tj4d_subset20/eval/epoch_4/val/official_ckpt_subset20` (untracked)
+  - `reproduction/stage2/stage2_execution_log.md`
+  - `reproduction/stage2/stage2_reproduction_notes.md` (updated with stable pass interpretation)
+- reason: post-fix full Stage 2B TJ4D official-checkpoint subset20 rerun and validation
+- next action or blocker: final Stage 2 hygiene check, finalize notes, and commit
+
+### 2026-05-14T00:08:00+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+
+  git status --short
+  git diff --stat
+  git diff -- README.md README_UPSTREAM.md reproduction/stage0 reproduction/stage1 || true
+  find . \( -path './output' -o -path '*/final_result' -o -name 'result.pkl' -o -name '*.pyc' -o -name '__pycache__' -o -name 'core*' \) -print
+  find -L data -name 'kitti_infos_stage2_*.pkl' -print || true
+  ```
+- exit status: `0`
+- important output excerpt:
+  - only Stage 2 docs pending for final commit at this step
+  - no diffs in `README.md`, `README_UPSTREAM.md`, `reproduction/stage0`, `reproduction/stage1`
+  - runtime outputs exist locally under `output/stage2/local_cfgs/...` and subset pkl paths under data, all unstaged
+- files changed:
+  - `reproduction/stage2/stage2_execution_log.md`
+  - `reproduction/stage2/stage2_reproduction_notes.md`
+- reason: final Stage 2 hygiene verification after successful post-fix reruns
+- next action or blocker: stage allowed Stage 2 docs and commit rerun/finalization records
