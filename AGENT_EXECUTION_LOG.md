@@ -129,3 +129,115 @@
   - no repository file changes from this phase.
 - reason: complete Phase A1 environment setup while enforcing CUDA 11.7 compiler/runtime compatibility.
 - next action or blocker: Phase A2 dependency pin installation and OpenMMLab stack checks.
+
+### 2026-05-13T14:10:04+08:00
+- current branch: `hgsfusion-aprime-b-setup`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  conda activate hgsfusion_a17
+  python -m pip install "setuptools>=64,<70" "wheel" "ninja" "packaging" "cython"
+  python -m pip install "numpy>=1.21,<1.27" "numba>=0.56,<0.59" "llvmlite>=0.39,<0.42" ... "kornia"
+  # detected kornia pulling torch>=2.0; killed run and retried with:
+  python -m pip install ... (without kornia)
+  python -m pip install "kornia>=0.6.8,<0.7"
+  python -m pip install "openmim<0.4"
+  python -m pip install "mmengine>=0.7.1,<1.0.0"
+  python -m pip install "mmcv==2.1.0"   # failed from source path
+  mim install "mmcv==2.1.0"             # success from cu117 wheel
+  python -m pip install "mmdet==3.3.0"
+  python - <<'PY' ... verify torch/mmcv/mmengine/mmdet/mmcv.ops ... PY
+  ```
+- exit status: `0` for final verification; one interrupted dependency command and one failed `pip install mmcv==2.1.0` were handled.
+- important output excerpt:
+  - `numpy` pinned to `1.26.4` (<2.0).
+  - `kornia` pinned to `0.6.12` to keep `torch 1.13.1`.
+  - `mmcv==2.1.0` installed successfully via `mim` wheel (`cu117/torch1.13`).
+  - versions verified:
+    - `torch 1.13.1+cu117`
+    - `mmcv 2.1.0`
+    - `mmengine 0.10.7`
+    - `mmdet 3.3.0`
+    - `mmcv.ops: ok`
+- files changed:
+  - no repository file changes from dependency install phase.
+- reason: complete Phase A2 with explicit version compatibility and avoid accidental torch 2.x upgrade.
+- next action or blocker: run A3 editable build and CUDA extension import checks.
+
+### 2026-05-13T14:10:04+08:00
+- current branch: `hgsfusion-aprime-b-setup`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  conda activate hgsfusion_a17
+  sed -n '1,240p' setup.py
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:$PATH
+  export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.9/site-packages/torch/lib:/usr/local/cuda-11.7/lib64:${LD_LIBRARY_PATH:-}
+  export MAX_JOBS=4
+  export TORCH_CUDA_ARCH_LIST="8.9"
+  python -m pip install -e . --no-build-isolation -v
+  # failed: torch 1.13 cannot compile arch 8.9
+  export TORCH_CUDA_ARCH_LIST="8.6"
+  python -m pip install -e . --no-build-isolation -v
+  python - <<'PY' ... import pcdet cuda extensions ... PY
+  ```
+- exit status: `0` on second build run.
+- important output excerpt:
+  - first build failed with `ValueError: Unknown CUDA arch (8.9) or GPU not supported`.
+  - second build with `TORCH_CUDA_ARCH_LIST=8.6` succeeded and produced all core `.so`.
+  - extension imports succeed when `LD_LIBRARY_PATH` includes torch libs:
+    - `pcdet.ops.iou3d_nms.iou3d_nms_cuda`
+    - `pcdet.ops.roiaware_pool3d.roiaware_pool3d_cuda`
+    - `pcdet.ops.pointnet2.pointnet2_stack.pointnet2_stack_cuda`
+- files changed:
+  - generated extension `.so` outputs under `pcdet/ops/*`.
+- reason: complete Phase A3 modern editable install and extension compilation on CUDA 11.7.
+- next action or blocker: compile/install `pillar_ops` and verify `pillar_cuda`.
+
+### 2026-05-13T14:10:04+08:00
+- current branch: `hgsfusion-aprime-b-setup`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  conda activate hgsfusion_a17
+  cd pcdet/ops/pillar_ops
+  python -m pip install -e . --no-build-isolation
+  cd /home/user/HGSFusion_research/HGSFusion
+  python - <<'PY' ... import pillar_cuda ... PY
+  sed/apply_patch updates:
+    - pcdet/datasets/__init__.py
+    - tools/cfgs/dataset_configs/vod_fusion.yaml
+    - tools/cfgs/dataset_configs/tj4d_fusion.yaml
+    - REPRO_A_PRIME.md (new)
+    - tools/hgsfusion_smoke_check.py (new)
+  python checks:
+    - pcdet.datasets import
+    - VOD/TJ4D imports
+    - Argo2Dataset explicit missing-av2 error message
+    - hgsfusion config loads
+    - python tools/hgsfusion_smoke_check.py
+  ```
+- exit status: mixed
+  - `pillar_cuda` installation and import: success
+  - smoke check script exit: `1` (expected data-index blocker)
+- important output excerpt:
+  - `pillar_cuda` module present at `pcdet/ops/pillar_ops/pillar_cuda.cpython-39-x86_64-linux-gnu.so`.
+  - `pcdet.datasets` now imports without forcing `av2` or `pyquaternion`.
+  - explicit `Argo2Dataset(...)` raises clear message requiring `av2`.
+  - configs loaded:
+    - `tools/cfgs/hgsfusion/hgsfusion_vod.yaml`
+    - `tools/cfgs/hgsfusion/hgsfusion_tj4d.yaml`
+  - smoke check passed env/import/config checks, but failed data check due missing:
+    - `data/vod_radar_5frames/kitti_infos_train.pkl`
+    - `data/vod_radar_5frames/kitti_infos_val.pkl`
+    - `data/tj4d/kitti_infos_train.pkl`
+    - `data/tj4d/kitti_infos_val.pkl`
+- files changed:
+  - `pcdet/datasets/__init__.py`
+  - `tools/cfgs/dataset_configs/vod_fusion.yaml`
+  - `tools/cfgs/dataset_configs/tj4d_fusion.yaml`
+  - `REPRO_A_PRIME.md` (new)
+  - `tools/hgsfusion_smoke_check.py` (new)
+- reason: complete Phase A4 and Phase B1-B4 requested low-risk engineering fixes plus smoke validation.
+- next action or blocker: Phase B5 dataloader test skipped because required `kitti_infos_*.pkl` files are currently missing (precondition not met).
