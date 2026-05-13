@@ -5,21 +5,31 @@ from .vfe_template import VFETemplate
 from .image_vfe_modules import ffn, f2v
 from .image_vfe import ImageVFE
 from .pillar_vfe import Radar7PillarVFE
-from .feature_sampler import GaussianSampler
 from .simple_sampler import SimpleSampler
 from .radar_occupancy import RadarOccupancy
-from .radar_occupancy_2d import RadarOccupancy2D
 from .radar_occupancy_2d_v2 import RadarOccupancy2DV2
-from .foreground_sampler import ForegroundSampler
+
+try:
+    from .radar_occupancy_2d import RadarOccupancy2D
+except Exception:
+    RadarOccupancy2D = None
+
+try:
+    from .foreground_sampler import ForegroundSampler
+except Exception:
+    ForegroundSampler = None
 
 radar_occupancy = {
     'RadarOccupancy': RadarOccupancy,
-    'RadarOccupancy2D': RadarOccupancy2D,
     'RadarOccupancy2DV2': RadarOccupancy2DV2
 }
 
+if RadarOccupancy2D is not None:
+    radar_occupancy['RadarOccupancy2D'] = RadarOccupancy2D
+
 feature_sampler = {
-    'GaussianSampler': GaussianSampler,
+    # Keep a backward-compatible alias: historical configs may still use GaussianSampler.
+    'GaussianSampler': SimpleSampler,
     'SimpleSampler': SimpleSampler,
 }
 
@@ -67,6 +77,8 @@ class FusionVFE(nn.Module):
             self.use_radar_occupancy = False
 
         if self.model_cfg.get('ForegroundSampler', None) is not None:
+            if ForegroundSampler is None:
+                raise ImportError('ForegroundSampler is configured but pcdet.models.backbones_3d.vfe.foreground_sampler is unavailable')
             self.fore_sampler = ForegroundSampler(
                 model_cfg=self.model_cfg.ForegroundSampler,
                 point_cloud_range=point_cloud_range,
