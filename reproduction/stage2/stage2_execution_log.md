@@ -84,3 +84,29 @@ Out of scope:
   - `reproduction/stage2/stage2_execution_log.md`
 - reason: Stage 1 closure check after Stage 2 log initialization
 - next action or blocker: run TJ4D split evidence check and create Stage 2 helper scripts
+
+### 2026-05-13T23:33:09+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+
+  ls -la data/tj4d/ImageSets || true
+  cat data/tj4d/ImageSets/readme.txt || true
+  find data/tj4d/ImageSets -maxdepth 1 -type f -print -exec wc -l {} \; || true
+
+  # follow symlink to get file counts from real target
+  find -L data/tj4d/ImageSets -maxdepth 1 -type f -print -exec wc -l {} \; || true
+  ```
+- exit status: `0`
+- important output excerpt:
+  - `data/tj4d/ImageSets` is a symlink to `/home/user/HGSFusion_research/artifacts/tj4d_sanitized/ImageSets`
+  - `readme.txt` states there is no separate validation split and `trainval.txt` equals `all.txt`
+  - split line counts (followed symlink): `train.txt=5717`, `test.txt=2040`, `all.txt=7757`, `trainval.txt=7757`
+  - interpretation recorded: TJ4D uses official eval split / test-val alias convention, not independent train/val/test
+- files changed:
+  - `reproduction/stage2/stage2_execution_log.md`
+  - `reproduction/stage2/stage2_reproduction_notes.md` (next edit in same batch)
+- reason: confirm TJ4D split evidence locally before Stage 2B evaluation
+- next action or blocker: implement Stage 2 helper scripts and local Stage 2 config files

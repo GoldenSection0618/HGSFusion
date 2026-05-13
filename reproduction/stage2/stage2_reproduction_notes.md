@@ -70,6 +70,11 @@ In this repository, `kitti_infos_val.pkl` should be interpreted as the TJ4D offi
 
 This does not block Stage 2 official-checkpoint evaluation dry run. However, any reported metric must clearly state that it is evaluated on the TJ4D official eval split / test-val alias split.
 
+Local evidence (2026-05-13):
+- `data/tj4d/ImageSets` -> `/home/user/HGSFusion_research/artifacts/tj4d_sanitized/ImageSets` (symlink)
+- `readme.txt` states no separate validation split and says `trainval.txt` equals `all.txt`
+- line counts: `train.txt=5717`, `test.txt=2040`, `all.txt=7757`, `trainval.txt=7757`
+
 ## Artifact Policy
 
 Stage 2 may temporarily generate subset pkl files and evaluation outputs. These are runtime artifacts only.
