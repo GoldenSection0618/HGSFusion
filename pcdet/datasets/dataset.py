@@ -1,4 +1,5 @@
 from collections import defaultdict
+import os
 from pathlib import Path
 
 import numpy as np
@@ -18,7 +19,17 @@ class DatasetTemplate(torch_data.Dataset):
         self.training = training
         self.class_names = class_names
         self.logger = logger
-        self.root_path = root_path if root_path is not None else Path(self.dataset_cfg.DATA_PATH)
+        if root_path is not None:
+            self.root_path = root_path
+        else:
+            data_path = str(self.dataset_cfg.DATA_PATH)
+            expanded_data_path = os.path.expanduser(os.path.expandvars(data_path))
+            if '$' in expanded_data_path or '${' in expanded_data_path:
+                raise ValueError(
+                    f'Unresolved environment variable in DATA_PATH: {data_path}. '
+                    'Please check that HGSFUSION_DATA_ROOT is set correctly.'
+                )
+            self.root_path = Path(expanded_data_path)
         self.logger = logger
         if self.dataset_cfg is None or class_names is None:
             return

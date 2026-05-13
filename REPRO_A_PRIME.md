@@ -6,6 +6,13 @@
 - Stable shared data root: `/home/user/HGSFusion_research/data`
 - Repository-local compatibility link: `/home/user/HGSFusion_research/HGSFusion/data -> ../data`
 
+Create the repository-local compatibility symlink locally (do not commit it):
+
+```bash
+cd /home/user/HGSFusion_research/HGSFusion
+ln -s ../data data
+```
+
 Use commands from the repository root unless noted.
 
 ## Install Command Updates

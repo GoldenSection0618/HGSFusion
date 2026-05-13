@@ -274,3 +274,31 @@
   - no code/document changes in this command block.
 - reason: collect final state for deliverable summary and blocker reporting.
 - next action or blocker: awaiting missing `kitti_infos_*.pkl` generation/provision before optional dataset-loader smoke (Phase B5).
+
+### 2026-05-13T14:53:40+08:00
+- current branch: `hgsfusion-aprime-b-setup`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  git status --short
+  git log --oneline -- pcdet/datasets/dataset.py | head -n 20
+  sed -n '1,220p' REPRO_A_PRIME.md
+  git diff -- pcdet/datasets/dataset.py
+  date -Iseconds
+  # docs update:
+  # REPRO_A_PRIME.md: add local symlink creation command
+  ```
+- exit status: `0`
+- important output excerpt:
+  - `pcdet/datasets/dataset.py` is a pre-existing valid manual fix and should be kept.
+  - `data` symlink is intentionally untracked and should not be committed.
+  - `REPRO_A_PRIME.md` now explicitly documents local setup:
+    - `ln -s ../data data`
+  - `kitti_infos_*.pkl` handling is intentionally deferred in this round.
+  - Phase B5 minimal dataset loader test remains intentionally skipped due that deferred data-index step.
+- files changed:
+  - `REPRO_A_PRIME.md`
+  - `AGENT_EXECUTION_LOG.md`
+  - `pcdet/datasets/dataset.py` remains to be included in branch commit as approved manual fix.
+- reason: cleanup pass requested by user to finalize branch state and intent documentation.
+- next action or blocker: commit cleanup note plus `dataset.py` manual fix, while keeping `data` symlink untracked.
