@@ -403,8 +403,6 @@ class VODDataset(DatasetTemplate):
         if 'annos' not in self.kitti_infos[0].keys():
             return None, {}
 
-        from .kitti_object_eval_python import eval as kitti_eval
-
         eval_det_annos = copy.deepcopy(det_annos)
         eval_gt_annos = [copy.deepcopy(info['annos']) for info in self.kitti_infos]
         current_class = [0, 1, 2]

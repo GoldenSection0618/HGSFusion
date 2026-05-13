@@ -489,8 +489,6 @@ class TJ4DDataset(DatasetTemplate):
         if 'annos' not in self.kitti_infos[0].keys():
             return None, {}
 
-        from .kitti_object_eval_python import eval as kitti_eval
-
         sequences = [int(info['image']['image_idx'][:2]) for info in self.kitti_infos]
 
         eval_det_annos = copy.deepcopy(det_annos)
@@ -521,6 +519,11 @@ class TJ4DDataset(DatasetTemplate):
                         cur_gt.append(copy.deepcopy(gt))
                         cur_dt.append(copy.deepcopy(det))
                 print(f"Evaluating {weather}")
+                if len(cur_gt) == 0:
+                    ap_result_str += f"Evaluating {weather}\n"
+                    ap_result_str += "No samples matched this weather subset.\n"
+                    ap_dict[weather] = {}
+                    continue
                 cur_str, cur_dict = tj4d_eval(cur_gt, cur_dt, class_names)
                 ap_result_str += f"Evaluating {weather}\n"
                 ap_result_str += cur_str
