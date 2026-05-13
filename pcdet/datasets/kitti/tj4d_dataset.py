@@ -199,16 +199,28 @@ class TJ4DDataset(DatasetTemplate):
             if has_label:
                 obj_list = self.get_label(sample_idx)
                 annotations = {}
-                annotations['name'] = np.array([obj.cls_type for obj in obj_list])
-                annotations['truncated'] = np.array([obj.truncation for obj in obj_list])
-                annotations['occluded'] = np.array([obj.occlusion for obj in obj_list])
-                annotations['alpha'] = np.array([obj.alpha for obj in obj_list])
-                annotations['bbox'] = np.concatenate([obj.box2d.reshape(1, 4) for obj in obj_list], axis=0)
-                annotations['dimensions'] = np.array([[obj.l, obj.h, obj.w] for obj in obj_list])  # lhw(camera) format
-                annotations['location'] = np.concatenate([obj.loc.reshape(1, 3) for obj in obj_list], axis=0)
-                annotations['rotation_y'] = np.array([obj.ry for obj in obj_list])
-                annotations['score'] = np.array([obj.score for obj in obj_list])
-                annotations['difficulty'] = np.array([obj.level for obj in obj_list], np.int32)
+                if len(obj_list) > 0:
+                    annotations['name'] = np.array([obj.cls_type for obj in obj_list])
+                    annotations['truncated'] = np.array([obj.truncation for obj in obj_list])
+                    annotations['occluded'] = np.array([obj.occlusion for obj in obj_list])
+                    annotations['alpha'] = np.array([obj.alpha for obj in obj_list])
+                    annotations['bbox'] = np.concatenate([obj.box2d.reshape(1, 4) for obj in obj_list], axis=0)
+                    annotations['dimensions'] = np.array([[obj.l, obj.h, obj.w] for obj in obj_list])  # lhw(camera) format
+                    annotations['location'] = np.concatenate([obj.loc.reshape(1, 3) for obj in obj_list], axis=0)
+                    annotations['rotation_y'] = np.array([obj.ry for obj in obj_list])
+                    annotations['score'] = np.array([obj.score for obj in obj_list])
+                    annotations['difficulty'] = np.array([obj.level for obj in obj_list], np.int32)
+                else:
+                    annotations['name'] = np.array([], dtype=np.object_)
+                    annotations['truncated'] = np.array([], dtype=np.float32)
+                    annotations['occluded'] = np.array([], dtype=np.int32)
+                    annotations['alpha'] = np.array([], dtype=np.float32)
+                    annotations['bbox'] = np.zeros((0, 4), dtype=np.float32)
+                    annotations['dimensions'] = np.zeros((0, 3), dtype=np.float32)  # lhw(camera) format
+                    annotations['location'] = np.zeros((0, 3), dtype=np.float32)
+                    annotations['rotation_y'] = np.array([], dtype=np.float32)
+                    annotations['score'] = np.array([], dtype=np.float32)
+                    annotations['difficulty'] = np.array([], dtype=np.int32)
 
                 num_objects = len([obj.cls_type for obj in obj_list if obj.cls_type != 'DontCare'])
                 num_gt = len(annotations['name'])
@@ -218,10 +230,13 @@ class TJ4DDataset(DatasetTemplate):
                 loc = annotations['location'][:num_objects]
                 dims = annotations['dimensions'][:num_objects]
                 rots = annotations['rotation_y'][:num_objects]
-                loc_lidar = calib.rect_to_lidar(loc)
-                l, h, w = dims[:, 0:1], dims[:, 1:2], dims[:, 2:3]
-                loc_lidar[:, 2] += h[:, 0] / 2
-                gt_boxes_lidar = np.concatenate([loc_lidar, l, w, h, -(np.pi / 2 + rots[..., np.newaxis])], axis=1)
+                if num_objects > 0:
+                    loc_lidar = calib.rect_to_lidar(loc)
+                    l, h, w = dims[:, 0:1], dims[:, 1:2], dims[:, 2:3]
+                    loc_lidar[:, 2] += h[:, 0] / 2
+                    gt_boxes_lidar = np.concatenate([loc_lidar, l, w, h, -(np.pi / 2 + rots[..., np.newaxis])], axis=1)
+                else:
+                    gt_boxes_lidar = np.zeros((0, 7), dtype=np.float32)
                 annotations['gt_boxes_lidar'] = gt_boxes_lidar
 
                 info['annos'] = annotations
@@ -642,7 +657,10 @@ class TJ4DDataset(DatasetTemplate):
 
 def create_kitti_infos(dataset_cfg, class_names, data_path, save_path, workers=4):
     dataset = TJ4DDataset(dataset_cfg=dataset_cfg, class_names=class_names, root_path=data_path, training=False)
-    train_split, val_split = 'train', 'val'
+    train_split, val_split, val_split_for_data = 'train', 'val', 'val'
+    if not (Path(data_path) / 'ImageSets' / f'{val_split_for_data}.txt').exists():
+        val_split_for_data = 'test'
+        print('val.txt not found under ImageSets, fallback to test split for kitti_infos_val.pkl generation')
 
     train_filename = save_path / ('kitti_infos_%s.pkl' % train_split)
     val_filename = save_path / ('kitti_infos_%s.pkl' % val_split)
@@ -657,7 +675,7 @@ def create_kitti_infos(dataset_cfg, class_names, data_path, save_path, workers=4
         pickle.dump(kitti_infos_train, f)
     print('Kitti info train file is saved to %s' % train_filename)
 
-    dataset.set_split(val_split)
+    dataset.set_split(val_split_for_data)
     kitti_infos_val = dataset.get_infos(num_workers=workers, has_label=True, count_inside_pts=True)
     with open(val_filename, 'wb') as f:
         pickle.dump(kitti_infos_val, f)
