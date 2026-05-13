@@ -283,3 +283,32 @@ Out of scope:
   - `reproduction/stage2/stage2_reproduction_notes.md`
 - reason: final Stage 2 git hygiene check before documentation commit
 - next action or blocker: commit final Stage 2 notes describing repeated evaluation-stage segmentation fault findings
+
+### 2026-05-13T23:55:01+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+
+  git branch --show-current
+  git status --short
+  git log --oneline --decorate -10
+
+  git diff --stat
+  git diff -- README.md README_UPSTREAM.md reproduction/stage0 reproduction/stage1 || true
+
+  find . \( -path './output' -o -path '*/final_result' -o -name 'result.pkl' -o -name '*.pyc' -o -name '__pycache__' -o -name 'core*' \) -print
+  find -L data -name 'kitti_infos_stage2_*.pkl' -print || true
+  ```
+- exit status: `0`
+- important output excerpt:
+  - current branch confirmed: `hgsfusion-stage2-limited-eval-dryrun`
+  - `git status --short` empty before this append
+  - no diff in `README.md`, `README_UPSTREAM.md`, `reproduction/stage0`, `reproduction/stage1`
+  - local runtime artifacts present under `output/stage2/local_cfgs/...` and subset pkl files under data symlinked dataset roots
+  - no runtime artifacts staged
+- files changed:
+  - `reproduction/stage2/stage2_execution_log.md`
+- reason: Stage 2 continuation baseline check before segfault root-cause debugging
+- next action or blocker: isolate segfault location in evaluation path and collect direct code/runtime evidence
