@@ -410,3 +410,128 @@ Out of scope:
   - `reproduction/stage1/stage1_execution_log.md`
 - reason: Stage 1A.10.6 VoD single-batch forward pass verification.
 - next action or blocker: Stage 1A.10.7 optional 1-2 batch eval dry run.
+
+### 2026-05-13T20:59:30+08:00
+- current branch: `hgsfusion-stage1-model-runtime-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  # optional VoD 2-batch eval dry run (no eval_one_epoch, no output files)
+  python - <<'PY'
+  ... limited loop over max_batches=2 with load_data_to_gpu + model(batch) ...
+  PY
+  ```
+- exit status: `0`
+- important output excerpt:
+  - `BATCH_0_OK pred_boxes=3`
+  - `BATCH_1_OK pred_boxes=12`
+  - `EVAL_DRYRUN_OK [3, 12]`
+  - no evaluation artifacts or result files were written by this limited loop.
+- files changed:
+  - `reproduction/stage1/stage1_execution_log.md`
+- reason: Stage 1A.10.7 optional limited eval dry run after single-batch forward success.
+- next action or blocker: start Stage 1B (TJ4D) checks in the same sequence.
+
+### 2026-05-13T21:00:28+08:00
+- current branch: `hgsfusion-stage1-model-runtime-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  python reproduction/stage1/scripts/stage1_path_artifact_audit.py --dataset tj4d
+  python reproduction/stage1/scripts/stage1_batch_contract_check.py --dataset tj4d --batch-size 1 --workers 0
+  ```
+- exit status: `0`
+- important output excerpt:
+  - TJ4D path/artifact audit passed:
+    - `tools/cfgs/hgsfusion/hgsfusion_tj4d.yaml`
+    - `tools/cfgs/dataset_configs/tj4d_fusion.yaml`
+    - `data/tj4d/kitti_infos_val.pkl`
+    - official hybrid points dir
+    - deeplab checkpoint
+    - official TJ4D checkpoint (`/mnt/e/.../hgsfusion_tj4d.pth`)
+  - TJ4D batch contract passed:
+    - batch keys include `points/images/gt_boxes/gt_boxes2d/trans_lidar_to_cam/trans_cam_to_img/lidar_aug_matrix`
+    - `calib_matricies` absent but compatibility mapping to trans matrices confirmed
+    - `metadata` absent in eval batch; `calib` + `frame_id` present
+- files changed:
+  - `reproduction/stage1/stage1_execution_log.md`
+- reason: Stage 1B path/artifact and batch contract checks for TJ4D.
+- next action or blocker: run TJ4D model build-only and checkpoint audit.
+
+### 2026-05-13T21:01:24+08:00
+- current branch: `hgsfusion-stage1-model-runtime-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  python reproduction/stage1/scripts/stage1_checkpoint_audit.py --dataset tj4d --mode build-only
+  python reproduction/stage1/scripts/stage1_checkpoint_audit.py --dataset tj4d --mode audit --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth
+  ```
+- exit status: `0`
+- important output excerpt:
+  - build-only:
+    - model class: `CaDDN`
+    - module_list classes: `FusionVFE`, `FusionAfterBEVSEDirect`, `AnchorHeadSingle`
+    - `len(model.state_dict()) = 936`
+    - deeplab resolved path exists
+  - checkpoint audit:
+    - checkpoint keys: `['epoch', 'it', 'model_state', 'optimizer_state', 'version']`
+    - `len(checkpoint['model_state']) = 936`
+    - matched: `936`
+    - missing/unexpected/shape-mismatch: `0/0/0`
+    - matched ratio: `1.000000`
+- files changed:
+  - `reproduction/stage1/stage1_execution_log.md`
+- reason: complete Stage 1B model build and checkpoint structural audit.
+- next action or blocker: run repository-path checkpoint load and single-batch forward for TJ4D.
+
+### 2026-05-13T21:02:22+08:00
+- current branch: `hgsfusion-stage1-model-runtime-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  # checkpoint load (repository path)
+  python - <<'PY'
+  ... build model from hgsfusion_tj4d.yaml ...
+  model.load_params_from_file('/home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth', to_cpu=True)
+  print('CHECKPOINT_LOAD_DONE')
+  PY
+
+  # single-batch forward
+  export LD_LIBRARY_PATH=...:/usr/lib/wsl/lib:...
+  python reproduction/stage1/scripts/stage1_single_batch_forward.py --dataset tj4d --batch-size 1 --workers 0
+  ```
+- exit status: `0`
+- important output excerpt:
+  - checkpoint loader summary:
+    - `==> Done (loaded 936/936)`
+  - single-batch forward output schema:
+    - `pred_dicts` list with len `1`
+    - `pred_boxes` `(3, 7)`
+    - `pred_scores` `(3,)`
+    - `pred_labels` `(3,)`
+    - recall keys include `gt/roi_*/rcnn_*`
+- files changed:
+  - `reproduction/stage1/stage1_execution_log.md`
+- reason: complete Stage 1B checkpoint load and single-batch forward validation.
+- next action or blocker: run optional TJ4D 1-2 batch eval dry run.
+
+### 2026-05-13T21:03:17+08:00
+- current branch: `hgsfusion-stage1-model-runtime-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  # optional TJ4D 2-batch eval dry run (no eval_one_epoch, no output files)
+  python - <<'PY'
+  ... limited loop over max_batches=2 with load_data_to_gpu + model(batch) ...
+  PY
+  ```
+- exit status: `0`
+- important output excerpt:
+  - `BATCH_0_OK pred_boxes=3`
+  - `BATCH_1_OK pred_boxes=6`
+  - `EVAL_DRYRUN_OK [3, 6]`
+  - no evaluation artifacts or result files were written by this limited loop.
+- files changed:
+  - `reproduction/stage1/stage1_execution_log.md`
+- reason: Stage 1B optional limited eval dry run.
+- next action or blocker: consolidate Stage 1 notes/scripts status and finalize Stage 1 deliverables.

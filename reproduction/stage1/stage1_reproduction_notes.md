@@ -95,6 +95,7 @@ Do not commit:
 - official checkpoint structural audit: passed
 - official checkpoint load (repository path): passed
 - single-batch forward dry run: passed
+- optional 2-batch eval dry run: passed (limited loop, no metric claim)
 
 VoD key outcomes:
 
@@ -127,3 +128,48 @@ These fixes do not alter model topology for current configs and do not disable c
 ### Runtime Library Note
 
 - For GPU forward on this WSL host, `LD_LIBRARY_PATH` needed `/usr/lib/wsl/lib` so `libcuda.so` is visible to cuDNN runtime.
+
+### Stage 1B (TJ4D) Status
+
+- path/artifact audit: passed
+- batch contract check: passed
+- model build-only: passed
+- official checkpoint structural audit: passed
+- official checkpoint load (repository path): passed
+- single-batch forward dry run: passed
+- optional 2-batch eval dry run: passed (limited loop, no metric claim)
+
+TJ4D key outcomes:
+
+- `len(model.state_dict()) = 936`
+- `len(checkpoint['model_state']) = 936`
+- matched keys: `936`
+- missing keys: `0`
+- unexpected keys: `0`
+- shape mismatch keys: `0`
+- checkpoint loader summary: `Done (loaded 936/936)`
+- single-batch forward output schema verified:
+  - `pred_boxes` shape `(3, 7)`
+  - `pred_scores` shape `(3,)`
+  - `pred_labels` shape `(3,)`
+
+TJ4D split interpretation remains unchanged:
+
+- current `kitti_infos_val.pkl` is generated from the test split fallback because `ImageSets/val.txt` is absent in the current dataset package.
+- this is not a standard TJ4D validation split.
+
+### Stage 1 Completion Status
+
+Stage 1 completed: checkpoint/config/model-runtime dry run passed for VoD and TJ4D.
+
+### Next Stage Boundary
+
+Recommended next stage:
+
+- Stage 2: limited official-checkpoint evaluation dry run
+
+Still out of scope after Stage 1:
+
+- full training
+- full benchmark evaluation
+- paper metric reproduction
