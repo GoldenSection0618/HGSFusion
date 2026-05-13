@@ -88,3 +88,44 @@
   - added symlink `data -> ../data` (new untracked path in repo view).
 - reason: complete Phase A0 baseline diagnostics and data interface verification.
 - next action or blocker: create clean Python 3.9 conda env (`hgsfusion_a17`) and install torch 1.13.1 + cu117 stack.
+
+### 2026-05-13T13:56:20+08:00
+- current branch: `hgsfusion-aprime-b-setup`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda create -n hgsfusion_a17 python=3.9 -y
+  conda activate hgsfusion_a17
+  python -m pip install --upgrade pip
+  conda install pytorch==1.13.1 torchvision==0.14.1 pytorch-cuda=11.7 -c pytorch -c nvidia -y
+  conda install ... (retry)
+  mamba install ... (retry)
+  python -m pip install --index-url https://download.pytorch.org/whl/cu117 torch==1.13.1+cu117 torchvision==0.14.1+cu117 (retry with --resume-retries)
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:$PATH
+  export LD_LIBRARY_PATH=/usr/local/cuda-11.7/lib64:${LD_LIBRARY_PATH:-}
+  which python
+  python --version
+  python - <<'PY' ... print(torch/cuda diagnostics) ... PY
+  which nvcc
+  nvcc --version
+  ```
+- exit status: `0` for final verification block; intermediate install attempts had non-zero exits.
+- important output excerpt:
+  - conda env created: `/home/user/miniforge3/envs/hgsfusion_a17`.
+  - Python in env: `3.9.23`.
+  - `conda install` and `mamba install` repeatedly failed due network download interruptions (`IncompleteRead`, `SSL EOF`, timeout on pytorch tarball).
+  - fallback `pip` install from `https://download.pytorch.org/whl/cu117` succeeded after retries:
+    - `torch==1.13.1+cu117`
+    - `torchvision==0.14.1+cu117`
+  - verification passed:
+    - `torch.version.cuda: 11.7`
+    - `torch.cuda.is_available: True`
+    - `CUDA_HOME: /usr/local/cuda-11.7`
+    - `which nvcc: /usr/local/cuda-11.7/bin/nvcc`
+    - `nvcc --version: release 11.7`.
+- files changed:
+  - no repository file changes from this phase.
+- reason: complete Phase A1 environment setup while enforcing CUDA 11.7 compiler/runtime compatibility.
+- next action or blocker: Phase A2 dependency pin installation and OpenMMLab stack checks.
