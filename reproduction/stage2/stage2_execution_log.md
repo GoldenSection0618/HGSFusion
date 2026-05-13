@@ -488,3 +488,54 @@ Out of scope:
   - `reproduction/stage2/stage2_reproduction_notes.md`
 - reason: final Stage 2 hygiene verification after successful post-fix reruns
 - next action or blocker: stage allowed Stage 2 docs and commit rerun/finalization records
+
+### 2026-05-14T00:12:52+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+  rg -n "^## Stage 2 Results|^## Bug Root Cause And Fix|^## Files Changed In Stage 2|^## Caveat" reproduction/stage2/stage2_reproduction_notes.md
+  sed -n '1,260p' reproduction/stage2/stage2_reproduction_notes.md
+  ```
+- exit status: `0`
+- important output excerpt:
+  - confirmed `## Stage 2 Results` was present without explicit overall completion summary
+  - confirmed root-cause section had no explicit fix-boundary block
+  - confirmed no final hygiene-result section existed at file end
+- files changed:
+  - `reproduction/stage2/stage2_reproduction_notes.md`
+- reason: apply targeted notes polish for Stage 2 closure-readiness without changing technical conclusions
+- modification summary:
+  - added overall completion summary under `## Stage 2 Results`
+  - added `Fix boundary` block under root-cause/fix section
+  - added `## Final Hygiene Result` section at file end
+- next action or blocker: run hygiene checks, stage allowed docs, and commit
+
+### 2026-05-14T00:13:07+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+
+  git branch --show-current
+  git status --short
+  git log --oneline --decorate -10
+  git diff --stat main...HEAD
+  git diff -- README.md README_UPSTREAM.md reproduction/stage0 reproduction/stage1 || true
+  find . \( -path './output' -o -path '*/final_result' -o -name 'result.pkl' -o -name '*.pyc' -o -name '__pycache__' -o -name 'core*' \) -print
+  find -L data -name 'kitti_infos_stage2_*.pkl' -print || true
+  ```
+- exit status: `0`
+- important output excerpt:
+  - branch confirmed: `hgsfusion-stage2-limited-eval-dryrun`
+  - pending changes only in Stage 2 docs: `reproduction/stage2/stage2_execution_log.md`, `reproduction/stage2/stage2_reproduction_notes.md`
+  - `git diff --stat main...HEAD` remains limited to Stage 2 docs/scripts/local cfg and three evaluation-source fixes (`vod_dataset.py`, `tj4d_dataset.py`, `tj4d_utils.py`)
+  - no diffs in `README.md`, `README_UPSTREAM.md`, `reproduction/stage0/`, `reproduction/stage1/`
+  - runtime artifacts and caches exist locally under `output/...`, `result.pkl`, `final_result`, `__pycache__`, `*.pyc`, and Stage 2 subset pkl paths
+- files changed:
+  - `reproduction/stage2/stage2_execution_log.md`
+  - `reproduction/stage2/stage2_reproduction_notes.md`
+- reason: Stage 2 closure check and post-note-update hygiene verification
+- next action or blocker: stage Stage 2 docs only and commit

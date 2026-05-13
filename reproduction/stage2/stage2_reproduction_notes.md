@@ -105,6 +105,12 @@ Local runtime artifacts currently kept (untracked):
 
 ## Stage 2 Results
 
+Overall status: completed.
+
+Stage 2 completed after diagnosing and fixing the evaluation-finalization crash. Both VoD and TJ4D controlled subset20 runs now pass through `tools/test.py`, generate `result.pkl`, generate `final_result/data` prediction files, and produce evaluation logs containing `Result is saved` and `Evaluation done`.
+
+This validates the limited official-checkpoint evaluation pipeline only. It does not claim full benchmark reproduction or paper-level AP reproduction.
+
 ## Bug Root Cause And Fix
 
 Root cause of the evaluation-finalization crash (`exit 139`):
@@ -121,6 +127,11 @@ Applied minimal fix:
 - Switched TJ4D BEV/3D IoU overlap helper from GPU numba rotate IoU to existing CPU `rotate_iou_eval`:
   - `pcdet/datasets/kitti/tj4d_utils.py`
 - Added empty-weather-subset guard in `pcdet/datasets/kitti/tj4d_dataset.py` to skip subsets with zero matched samples instead of dividing by zero.
+
+Fix boundary:
+- The fix is limited to the evaluation/finalization path.
+- It does not change model topology, checkpoint loading, prediction generation, anchors, NMS thresholds, score thresholds, point cloud ranges, or voxel sizes.
+- It does not change the controlled subset definition.
 
 Post-fix targeted replay evidence:
 - VoD `dataset.evaluation` replay on existing `result.pkl`: returns successfully (no segfault).
@@ -197,3 +208,14 @@ No committed changes should exist in:
 - `final_result/`
 - generated subset pkl files
 - generated dry-run result files
+
+## Final Hygiene Result
+
+Final hygiene check confirmed:
+
+- `README.md` was not modified.
+- `README_UPSTREAM.md` was not modified.
+- `reproduction/stage0/` was not modified.
+- `reproduction/stage1/` was not modified.
+- Stage 2 subset pkl files remain local runtime artifacts and were not committed.
+- `output/`, `final_result/`, `result.pkl`, prediction txt files, checkpoints, raw data, pyc/cache/core/tmp logs were not committed.
