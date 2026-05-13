@@ -339,3 +339,23 @@
   - `AGENT_EXECUTION_LOG.md` (append-only).
 - reason: execute C0-1 and verify environment/toolchain context before info generation.
 - next action or blocker: run C0-2 to confirm local `data -> ../data` interface and untracked status.
+
+### 2026-05-13T15:13:59+08:00
+- current branch: `hgsfusion-aprime-b-setup`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+  ls -ld data
+  readlink -f data
+  git status --short
+  ```
+- exit status: `0`
+- important output excerpt:
+  - `data -> ../data` symlink exists.
+  - `readlink -f data` resolves to `/home/user/HGSFusion_research/data`.
+  - `git status --short` is clean (local exclude hides symlink from untracked list).
+- files changed:
+  - `AGENT_EXECUTION_LOG.md` (append-only).
+- reason: execute C0-2 and confirm repository-local data interface.
+- next action or blocker: run C0-3 and inspect dataset info-generation entry points.
