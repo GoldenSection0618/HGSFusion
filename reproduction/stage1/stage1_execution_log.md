@@ -100,3 +100,35 @@ Out of scope:
   - `reproduction/stage1/stage1_execution_log.md`
 - reason: baseline environment and git state verification before model-runtime checks.
 - next action or blocker: re-run Stage 0 smoke check as Stage 1 baseline probe.
+
+### 2026-05-13T20:42:03+08:00
+- current branch: `hgsfusion-stage1-model-runtime-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+
+  export HGSFUSION_WORKDIR=/home/user/HGSFusion_research
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  export HGSFUSION_DATA_ROOT=/home/user/HGSFusion_research/HGSFusion/data
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:$PATH
+  export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.9/site-packages/torch/lib:/usr/local/cuda-11.7/lib64:${LD_LIBRARY_PATH:-}
+  hash -r
+
+  python reproduction/stage0/scripts/hgsfusion_smoke_check.py
+  ```
+- exit status: `0`
+- important output excerpt:
+  - smoke script result: `SMOKE CHECK PASSED`
+  - environment checks passed (`torch 1.13.1+cu117`, `torch.cuda.is_available=True`, `nvcc 11.7`)
+  - import checks passed (`pcdet`, dataset modules, CUDA ops, `pillar_cuda`)
+  - config load checks passed (`hgsfusion_vod.yaml`, `hgsfusion_tj4d.yaml`)
+  - data interface checks passed for VoD/TJ4D `kitti_infos_{train,val}.pkl` and official hybrid point directories
+  - noted warnings: `NumbaDeprecationWarning` from legacy jit decorators (non-blocking)
+- files changed:
+  - `reproduction/stage1/stage1_execution_log.md`
+- reason: re-run Stage 0 smoke as Stage 1 baseline probe.
+- next action or blocker: start Stage 1A (VoD) path/artifact audit.
