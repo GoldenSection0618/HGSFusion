@@ -75,6 +75,16 @@ Do not commit:
 - `__pycache__/`
 - temporary logs under `/tmp`
 
+## Checkpoint And Pretrained Path Decisions
+
+- DeepLabV3 pretrained path (required): `/home/user/HGSFusion_research/checkpoints/deeplabv3_resnet101_coco-586e9e4e.pth`
+- Official VoD checkpoint path used by Stage 1:
+  - link path: `/home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth`
+  - resolved target: `/mnt/e/HGSFusion_datasets/raw/hgsfusion_official_assets/hgsfusion_vod.pth`
+- Official TJ4D checkpoint candidate path discovered in checkpoints root:
+  - link path: `/home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth`
+  - resolved target: `/mnt/e/HGSFusion_datasets/raw/hgsfusion_official_assets/hgsfusion_tj4d.pth`
+
 ## Stage 1 Results
 
 To be filled during execution.

@@ -132,3 +132,41 @@ Out of scope:
   - `reproduction/stage1/stage1_execution_log.md`
 - reason: re-run Stage 0 smoke as Stage 1 baseline probe.
 - next action or blocker: start Stage 1A (VoD) path/artifact audit.
+
+### 2026-05-13T20:44:56+08:00
+- current branch: `hgsfusion-stage1-model-runtime-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  # create Stage 1 path/artifact audit script
+  cat > reproduction/stage1/scripts/stage1_path_artifact_audit.py <<'EOF_SCRIPT'
+  ... stage1_path_artifact_audit.py ...
+  EOF_SCRIPT
+  chmod +x reproduction/stage1/scripts/stage1_path_artifact_audit.py
+
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  python reproduction/stage1/scripts/stage1_path_artifact_audit.py --dataset vod
+  ```
+- exit status: `0`
+- important output excerpt:
+  - `[OK]` config paths:
+    - `tools/cfgs/hgsfusion/hgsfusion_vod.yaml`
+    - `tools/cfgs/dataset_configs/vod_fusion.yaml`
+  - `[OK]` data paths:
+    - `data/vod_radar_5frames`
+    - `data/vod_radar_5frames/kitti_infos_val.pkl`
+    - `data/vod_radar_5frames/training/mask_maskformer_with_label_k_1_gauss_k_4_uniform`
+  - `[OK]` DeepLabV3 pretrained:
+    - `/home/user/HGSFusion_research/checkpoints/deeplabv3_resnet101_coco-586e9e4e.pth`
+    - size `233.22MB`
+  - `[OK]` official VoD checkpoint:
+    - link path: `/home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth`
+    - resolved target: `/mnt/e/HGSFusion_datasets/raw/hgsfusion_official_assets/hgsfusion_vod.pth`
+    - size `274.93MB`
+- files changed:
+  - `reproduction/stage1/scripts/stage1_path_artifact_audit.py`
+  - `reproduction/stage1/stage1_execution_log.md`
+- reason: Stage 1A.10.1 VoD path and artifact audit.
+- next action or blocker: implement and run VoD batch contract check (`batch_size=1`, `workers=0`, `training=False`).
