@@ -170,3 +170,40 @@ Out of scope:
   - `reproduction/stage1/stage1_execution_log.md`
 - reason: Stage 1A.10.1 VoD path and artifact audit.
 - next action or blocker: implement and run VoD batch contract check (`batch_size=1`, `workers=0`, `training=False`).
+
+### 2026-05-13T20:45:22+08:00
+- current branch: `hgsfusion-stage1-model-runtime-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cat > reproduction/stage1/scripts/stage1_batch_contract_check.py <<'EOF_SCRIPT'
+  ... stage1_batch_contract_check.py ...
+  EOF_SCRIPT
+  chmod +x reproduction/stage1/scripts/stage1_batch_contract_check.py
+
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  python reproduction/stage1/scripts/stage1_batch_contract_check.py --dataset vod --batch-size 1 --workers 0
+  ```
+- exit status: `0`
+- important output excerpt:
+  - dataloader built with `batch_size=1`, `workers=0`, `training=False`, dataset_len=`1296`
+  - batch keys:
+    - `batch_size`, `calib`, `frame_id`, `gt_boxes`, `gt_boxes2d`, `image_shape`, `images`, `lidar_aug_matrix`, `points`, `trans_cam_to_img`, `trans_lidar_to_cam`, `use_lead_xyz`
+  - required runtime keys for CaDDN/FusionVFE/ImageVFE present:
+    - `points`, `images`, `image_shape`, `trans_lidar_to_cam`, `trans_cam_to_img`, `lidar_aug_matrix`, `frame_id`, `batch_size`
+  - key-shape examples:
+    - `points`: `(2591, 18)` `float64`
+    - `images`: `(1, 1216, 1936, 3)` `float32`
+    - `gt_boxes`: `(1, 7, 8)` `float32`
+    - `gt_boxes2d`: `(1, 7, 4)` `float32`
+  - compatibility notes:
+    - `calib_matricies` not a direct batch key in this fork; model path uses `trans_lidar_to_cam` + `trans_cam_to_img`
+    - `metadata` missing in current eval batch; `calib` + `frame_id` are present
+  - `kornia` import check: passed
+- files changed:
+  - `reproduction/stage1/scripts/stage1_batch_contract_check.py`
+  - `reproduction/stage1/stage1_execution_log.md`
+- reason: Stage 1A.10.2 VoD batch contract check.
+- next action or blocker: Stage 1A.10.3 VoD model build-only check.
