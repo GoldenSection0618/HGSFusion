@@ -241,3 +241,36 @@
   - `tools/hgsfusion_smoke_check.py` (new)
 - reason: complete Phase A4 and Phase B1-B4 requested low-risk engineering fixes plus smoke validation.
 - next action or blocker: Phase B5 dataloader test skipped because required `kitti_infos_*.pkl` files are currently missing (precondition not met).
+
+### 2026-05-13T14:11:24+08:00
+- current branch: `hgsfusion-aprime-b-setup`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  conda activate hgsfusion_a17
+  python - <<'PY' ... print python/torch/mmcv/mmengine/mmdet versions ... PY
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:$PATH
+  export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.9/site-packages/torch/lib:/usr/local/cuda-11.7/lib64:${LD_LIBRARY_PATH:-}
+  which nvcc
+  nvcc --version
+  git status --short
+  ```
+- exit status: `0`
+- important output excerpt:
+  - environment summary:
+    - `python 3.9.23`
+    - `torch 1.13.1+cu117`
+    - `torch.version.cuda 11.7`
+    - `mmcv 2.1.0`
+    - `mmengine 0.10.7`
+    - `mmdet 3.3.0`
+  - `CUDA_HOME=/usr/local/cuda-11.7`
+  - `which nvcc -> /usr/local/cuda-11.7/bin/nvcc`
+  - working tree still contains pre-existing local change:
+    - `pcdet/datasets/dataset.py` (modified before this task)
+  - repo-local `data` symlink remains untracked by git.
+- files changed:
+  - no code/document changes in this command block.
+- reason: collect final state for deliverable summary and blocker reporting.
+- next action or blocker: awaiting missing `kitti_infos_*.pkl` generation/provision before optional dataset-loader smoke (Phase B5).
