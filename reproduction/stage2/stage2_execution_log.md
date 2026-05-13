@@ -110,3 +110,46 @@ Out of scope:
   - `reproduction/stage2/stage2_reproduction_notes.md` (next edit in same batch)
 - reason: confirm TJ4D split evidence locally before Stage 2B evaluation
 - next action or blocker: implement Stage 2 helper scripts and local Stage 2 config files
+
+### 2026-05-13T23:35:28+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+
+  # create Stage 2 helper scripts
+  create reproduction/stage2/scripts/stage2_make_eval_subset.py
+  create reproduction/stage2/scripts/stage2_result_pkl_check.py
+  create reproduction/stage2/scripts/stage2_eval_artifact_check.py
+  chmod +x reproduction/stage2/scripts/*.py
+
+  # quick cli self-checks
+  python reproduction/stage2/scripts/stage2_make_eval_subset.py --help
+  python reproduction/stage2/scripts/stage2_result_pkl_check.py --help
+  python reproduction/stage2/scripts/stage2_eval_artifact_check.py --help
+
+  # create local cfg copies and adjust only INFO_PATH.test
+  mkdir -p reproduction/stage2/local_cfgs
+  cp tools/cfgs/hgsfusion/hgsfusion_vod.yaml reproduction/stage2/local_cfgs/hgsfusion_vod_stage2_subset20.yaml
+  cp tools/cfgs/hgsfusion/hgsfusion_tj4d.yaml reproduction/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20.yaml
+
+  # verify local cfg diffs only inject INFO_PATH.test
+  diff -u tools/cfgs/hgsfusion/hgsfusion_vod.yaml reproduction/stage2/local_cfgs/hgsfusion_vod_stage2_subset20.yaml
+  diff -u tools/cfgs/hgsfusion/hgsfusion_tj4d.yaml reproduction/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20.yaml
+  ```
+- exit status: `0`
+- important output excerpt:
+  - all three helper scripts parse args correctly via `--help`
+  - local cfg diffs only add `DATA_CONFIG.INFO_PATH.test` entries for subset pkl files
+  - no topology/hyperparameter/NMS/threshold/model-head changes introduced
+  - local cfg files are relative-path based and contain no machine-specific absolute paths
+- files changed:
+  - `reproduction/stage2/scripts/stage2_make_eval_subset.py`
+  - `reproduction/stage2/scripts/stage2_result_pkl_check.py`
+  - `reproduction/stage2/scripts/stage2_eval_artifact_check.py`
+  - `reproduction/stage2/local_cfgs/hgsfusion_vod_stage2_subset20.yaml`
+  - `reproduction/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20.yaml`
+  - `reproduction/stage2/stage2_execution_log.md`
+- reason: create Stage 2 helper scripts and local subset-only eval configs
+- next action or blocker: run Stage 2A VoD subset generation and official-checkpoint evaluation
