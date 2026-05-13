@@ -87,4 +87,43 @@ Do not commit:
 
 ## Stage 1 Results
 
-To be filled during execution.
+### Stage 1A (VoD) Status
+
+- path/artifact audit: passed
+- batch contract check: passed
+- model build-only: passed
+- official checkpoint structural audit: passed
+- official checkpoint load (repository path): passed
+- single-batch forward dry run: passed
+
+VoD key outcomes:
+
+- `len(model.state_dict()) = 936`
+- `len(checkpoint['model_state']) = 936`
+- matched keys: `936`
+- missing keys: `0`
+- unexpected keys: `0`
+- shape mismatch keys: `0`
+- checkpoint loader summary: `Done (loaded 936/936)`
+- single-batch forward output schema verified:
+  - `pred_boxes` shape `(3, 7)`
+  - `pred_scores` shape `(3,)`
+  - `pred_labels` shape `(3,)`
+
+### Minimal Compatibility Fixes Applied Outside `reproduction/stage1/`
+
+The following changes were required to unblock Stage 1 model build/runtime and were intentionally kept minimal:
+
+- environment dependency fix:
+  - installed `spconv-cu117` in `hgsfusion_a17` to satisfy model import/runtime dependency.
+- code compatibility fixes:
+  - file changed: `pcdet/models/backbones_3d/vfe/fusion_vfe.py`
+  - fix 1: remove import dependency on missing module `feature_sampler`; keep backward-compatible alias `GaussianSampler -> SimpleSampler`.
+  - fix 2: make `RadarOccupancy2D` optional import (current VoD/TJ4D configs use `RadarOccupancy2DV2`).
+  - fix 3: make `ForegroundSampler` optional import; only raise if config explicitly enables it.
+
+These fixes do not alter model topology for current configs and do not disable core modules used by current Stage 1 paths.
+
+### Runtime Library Note
+
+- For GPU forward on this WSL host, `LD_LIBRARY_PATH` needed `/usr/lib/wsl/lib` so `libcuda.so` is visible to cuDNN runtime.
