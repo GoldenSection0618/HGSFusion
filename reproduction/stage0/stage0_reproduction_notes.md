@@ -1,4 +1,4 @@
-# HGSFusion A′ Reproduction Notes
+# HGSFusion Stage 0 Reproduction Notes
 
 ## Paths
 
