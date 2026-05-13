@@ -153,3 +153,133 @@ Out of scope:
   - `reproduction/stage2/stage2_execution_log.md`
 - reason: create Stage 2 helper scripts and local subset-only eval configs
 - next action or blocker: run Stage 2A VoD subset generation and official-checkpoint evaluation
+
+### 2026-05-13T23:45:27+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+
+  python reproduction/stage2/scripts/stage2_make_eval_subset.py     --input data/vod_radar_5frames/kitti_infos_val.pkl     --output data/vod_radar_5frames/kitti_infos_stage2_vod_val_subset20.pkl     --count 20     --mode first
+
+  ls -lh data/vod_radar_5frames/kitti_infos_stage2_vod_val_subset20.pkl
+  git status --short
+
+  export CUDA_VISIBLE_DEVICES=0
+  export HGSFUSION_WORKDIR=/home/user/HGSFusion_research
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  export HGSFUSION_DATA_ROOT=/home/user/HGSFusion_research/HGSFusion/data
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:$PATH
+  export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.9/site-packages/torch/lib:/usr/local/cuda-11.7/lib64:/usr/lib/wsl/lib:${LD_LIBRARY_PATH:-}
+  hash -r
+
+  python tools/test.py     --cfg_file reproduction/stage2/local_cfgs/hgsfusion_vod_stage2_subset20.yaml     --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth     --batch_size 1     --workers 0     --extra_tag stage2_vod_subset20     --eval_tag official_ckpt_subset20
+
+  find output -path '*stage2_vod_subset20*' -type f | sort
+  find output -path '*stage2_vod_subset20*' -type d | sort
+
+  # first check run without conda caused numpy import failure in checker
+  python reproduction/stage2/scripts/stage2_result_pkl_check.py --result-pkl <VOD_EVAL_DIR>/result.pkl --expected-count 20
+
+  # correction run in conda env
+  python reproduction/stage2/scripts/stage2_result_pkl_check.py --result-pkl <VOD_EVAL_DIR>/result.pkl --expected-count 20
+  python reproduction/stage2/scripts/stage2_eval_artifact_check.py --eval-dir <VOD_EVAL_DIR>
+  ```
+- exit status: `139` for `tools/test.py`; artifact checker exits `1` because completion markers missing
+- important output excerpt:
+  - subset generation succeeded: source length `1296`, subset length `20`, frames `00000..00019`
+  - checkpoint loaded `936/936`
+  - eval loop reached `20/20` and printed recall + average predicted number
+  - process terminated with `Segmentation fault (core dumped)` immediately after performance summary
+  - output artifacts exist: `result.pkl`, `final_result/data` with 20 txt predictions, `log_eval_20260513-233610.txt`
+  - `stage2_result_pkl_check.py` in conda env reports `num_annotations: 20` and sane schema keys
+  - `stage2_eval_artifact_check.py` reports missing log markers: `Result is saved`, `Evaluation done`
+- files changed:
+  - local runtime artifact: `data/vod_radar_5frames/kitti_infos_stage2_vod_val_subset20.pkl` (untracked)
+  - local runtime artifact dir: `output/stage2/local_cfgs/hgsfusion_vod_stage2_subset20/stage2_vod_subset20/eval/epoch_no_number/val/official_ckpt_subset20` (untracked)
+  - `reproduction/stage2/stage2_execution_log.md`
+  - `reproduction/stage2/stage2_reproduction_notes.md` (updated in later entry)
+- reason: execute Stage 2A VoD official-checkpoint subset20 evaluation and validate generated artifacts
+- next action or blocker: proceed with Stage 2B TJ4D run to check whether failure reproduces across datasets
+
+### 2026-05-13T23:45:27+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+
+  python reproduction/stage2/scripts/stage2_make_eval_subset.py     --input data/tj4d/kitti_infos_val.pkl     --output data/tj4d/kitti_infos_stage2_tj4d_eval_subset20.pkl     --count 20     --mode first
+
+  ls -lh data/tj4d/kitti_infos_stage2_tj4d_eval_subset20.pkl
+  git status --short
+
+  export CUDA_VISIBLE_DEVICES=0
+  export HGSFUSION_WORKDIR=/home/user/HGSFusion_research
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  export HGSFUSION_DATA_ROOT=/home/user/HGSFusion_research/HGSFusion/data
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:$PATH
+  export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.9/site-packages/torch/lib:/usr/local/cuda-11.7/lib64:/usr/lib/wsl/lib:${LD_LIBRARY_PATH:-}
+  hash -r
+
+  python tools/test.py     --cfg_file reproduction/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20.yaml     --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth     --batch_size 1     --workers 0     --extra_tag stage2_tj4d_subset20     --eval_tag official_ckpt_subset20
+
+  find output -path '*stage2_tj4d_subset20*' -type f | sort
+  find output -path '*stage2_tj4d_subset20*' -type d | sort
+
+  python reproduction/stage2/scripts/stage2_result_pkl_check.py --result-pkl <TJ4D_EVAL_DIR>/result.pkl --expected-count 20
+  python reproduction/stage2/scripts/stage2_eval_artifact_check.py --eval-dir <TJ4D_EVAL_DIR>
+  ```
+- exit status: `139` for `tools/test.py`; artifact checker exits `1` because completion markers missing
+- important output excerpt:
+  - subset generation succeeded: source length `2040`, subset length `20`, frames `000000..000019`
+  - checkpoint loaded `936/936`
+  - eval loop reached `20/20` and printed recall + average predicted number
+  - process terminated with `Segmentation fault (core dumped)` immediately after performance summary
+  - output artifacts exist: `result.pkl`, `final_result/data` with 20 txt predictions, `log_eval_20260513-234203.txt`
+  - `stage2_result_pkl_check.py` reports `num_annotations: 20` and sane schema keys
+  - `stage2_eval_artifact_check.py` reports missing log markers: `Result is saved`, `Evaluation done`
+- files changed:
+  - local runtime artifact: `data/tj4d/kitti_infos_stage2_tj4d_eval_subset20.pkl` (untracked)
+  - local runtime artifact dir: `output/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20/stage2_tj4d_subset20/eval/epoch_4/val/official_ckpt_subset20` (untracked)
+  - `reproduction/stage2/stage2_execution_log.md`
+  - `reproduction/stage2/stage2_reproduction_notes.md` (updated in later entry)
+- reason: execute Stage 2B TJ4D official-checkpoint subset20 evaluation and validate generated artifacts
+- next action or blocker: mark Stage 2 status as failed/partial due repeated dataset.evaluation-stage crash and run final hygiene check
+
+### 2026-05-13T23:46:00+08:00
+- current branch: `hgsfusion-stage2-limited-eval-dryrun`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+
+  git status --short
+  git diff --stat
+  git diff -- README.md README_UPSTREAM.md reproduction/stage0 reproduction/stage1 || true
+  find . \( -path './output' -o -path '*/final_result' -o -name 'result.pkl' -o -name '*.pyc' -o -name '__pycache__' \) -print
+  find data -name 'kitti_infos_stage2_*.pkl' -print || true
+
+  # correction for symlinked dataset roots
+  find -L data -name 'kitti_infos_stage2_*.pkl' -print || true
+  ```
+- exit status: `0`
+- important output excerpt:
+  - only Stage 2 docs were tracked as modified for commit at this point
+  - no diffs in `README.md`, `README_UPSTREAM.md`, `reproduction/stage0`, `reproduction/stage1`
+  - runtime artifacts exist only locally under `output/` and are not staged
+  - `find -L data` confirms subset files:
+    - `data/vod_radar_5frames/kitti_infos_stage2_vod_val_subset20.pkl`
+    - `data/tj4d/kitti_infos_stage2_tj4d_eval_subset20.pkl`
+- files changed:
+  - `reproduction/stage2/stage2_execution_log.md`
+  - `reproduction/stage2/stage2_reproduction_notes.md`
+- reason: final Stage 2 git hygiene check before documentation commit
+- next action or blocker: commit final Stage 2 notes describing repeated evaluation-stage segmentation fault findings

@@ -97,15 +97,60 @@ Do not commit:
 
 If runtime artifacts are kept locally, record their exact paths in this notes file. If they are cleaned up, record the cleanup command and result in `stage2_execution_log.md`.
 
+Local runtime artifacts currently kept (untracked):
+- `data/vod_radar_5frames/kitti_infos_stage2_vod_val_subset20.pkl`
+- `data/tj4d/kitti_infos_stage2_tj4d_eval_subset20.pkl`
+- `output/stage2/local_cfgs/hgsfusion_vod_stage2_subset20/stage2_vod_subset20/eval/epoch_no_number/val/official_ckpt_subset20/`
+- `output/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20/stage2_tj4d_subset20/eval/epoch_4/val/official_ckpt_subset20/`
+
 ## Stage 2 Results
 
 ### Stage 2A: VoD subset evaluation
 
-Status: pending
+Status: failed at `dataset.evaluation` stage (process exit 139)
+
+- command used:
+  - `python tools/test.py --cfg_file reproduction/stage2/local_cfgs/hgsfusion_vod_stage2_subset20.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth --batch_size 1 --workers 0 --extra_tag stage2_vod_subset20 --eval_tag official_ckpt_subset20`
+- subset source pkl: `data/vod_radar_5frames/kitti_infos_val.pkl`
+- subset output pkl: `data/vod_radar_5frames/kitti_infos_stage2_vod_val_subset20.pkl`
+- subset size: `20`
+- checkpoint path: `/home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth`
+- eval output dir: `output/stage2/local_cfgs/hgsfusion_vod_stage2_subset20/stage2_vod_subset20/eval/epoch_no_number/val/official_ckpt_subset20`
+- result.pkl path: `output/stage2/local_cfgs/hgsfusion_vod_stage2_subset20/stage2_vod_subset20/eval/epoch_no_number/val/official_ckpt_subset20/result.pkl`
+- final_result/data status: exists with `20` prediction txt files
+- log status:
+  - `recall_roi`, `recall_rcnn`, `Average predicted number` present
+  - `Result is saved`, `Evaluation done` missing
+- pass/fail status:
+  - `tools/test.py` exited `139` (segmentation fault)
+  - stage pass criteria not met
+- interpretation note:
+  - this is a controlled subset dry run and not paper metric reproduction
 
 ### Stage 2B: TJ4D subset evaluation
 
-Status: pending
+Status: failed at `dataset.evaluation` stage (process exit 139)
+
+- command used:
+  - `python tools/test.py --cfg_file reproduction/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth --batch_size 1 --workers 0 --extra_tag stage2_tj4d_subset20 --eval_tag official_ckpt_subset20`
+- subset source pkl: `data/tj4d/kitti_infos_val.pkl`
+- subset output pkl: `data/tj4d/kitti_infos_stage2_tj4d_eval_subset20.pkl`
+- subset size: `20`
+- checkpoint path: `/home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth`
+- eval output dir: `output/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20/stage2_tj4d_subset20/eval/epoch_4/val/official_ckpt_subset20`
+- result.pkl path: `output/stage2/local_cfgs/hgsfusion_tj4d_stage2_subset20/stage2_tj4d_subset20/eval/epoch_4/val/official_ckpt_subset20/result.pkl`
+- final_result/data status: exists with `20` prediction txt files
+- log status:
+  - `recall_roi`, `recall_rcnn`, `Average predicted number` present
+  - `Result is saved`, `Evaluation done` missing
+- pass/fail status:
+  - `tools/test.py` exited `139` (segmentation fault)
+  - stage pass criteria not met
+- split interpretation note:
+  - TJ4D metric context is official eval split / test-val alias split
+  - this is not an independent validation-set metric claim
+- interpretation note:
+  - this is a controlled subset dry run and not paper metric reproduction
 
 ## Files Changed In Stage 2
 
