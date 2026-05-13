@@ -14,6 +14,25 @@ def run_cmd(cmd):
         return False, repr(e)
 
 
+def resolve_repo_root():
+    env_repo = os.environ.get("HGSFUSION_REPO")
+    if env_repo:
+        p = Path(env_repo).expanduser().resolve()
+        if p.exists():
+            return p
+
+    script_dir = Path(__file__).resolve().parent
+    git_ok, git_root = run_cmd(["git", "-C", str(script_dir), "rev-parse", "--show-toplevel"])
+    if git_ok:
+        return Path(git_root)
+
+    for parent in script_dir.parents:
+        if (parent / "pcdet").exists() and (parent / "tools/cfgs/hgsfusion").exists():
+            return parent
+
+    return Path.cwd()
+
+
 def check_path(path: Path, required=True):
     ok = path.exists()
     status = "OK" if ok else ("MISSING" if required else "OPTIONAL-MISSING")
@@ -45,10 +64,13 @@ def check_config(config_path):
 
 
 def main():
-    repo_root = Path.cwd()
+    repo_root = resolve_repo_root()
     shared_data_root = Path("/home/user/HGSFusion_research/data")
     local_data_link = repo_root / "data"
     ok = True
+    original_cwd = Path.cwd()
+    if original_cwd != repo_root:
+        os.chdir(repo_root)
 
     print("== Python/CUDA Environment ==")
     print(f"python: {sys.version.split()[0]} ({sys.executable})")
@@ -114,8 +136,12 @@ def main():
     print("\n== Result ==")
     if ok:
         print("SMOKE CHECK PASSED")
+        if Path.cwd() != original_cwd:
+            os.chdir(original_cwd)
         return 0
     print("SMOKE CHECK FAILED")
+    if Path.cwd() != original_cwd:
+        os.chdir(original_cwd)
     return 1
 
 
