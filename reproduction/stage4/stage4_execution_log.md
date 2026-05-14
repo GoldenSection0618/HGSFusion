@@ -364,3 +364,36 @@ Out of scope:
   - `reproduction/stage4/stage4_reproduction_notes.md`
 - reason: close Stage 4G with blocker fix and perform runtime summary/final hygiene checks.
 - next action or blocker: stage allowed files and create incremental Stage 4 commits.
+
+### 2026-05-14T17:04:15+08:00
+- current branch: `hgsfusion-stage4-training-chain-validation`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  git status --short
+  git diff -- README.md
+  git add reproduction/stage4/stage4_execution_log.md reproduction/stage4/stage4_reproduction_notes.md \
+          reproduction/stage4/scripts/stage4_train_data_contract_check.py \
+          reproduction/stage4/scripts/stage4_make_info_subset.py \
+          reproduction/stage4/scripts/stage4_train_log_parser.py \
+          reproduction/stage4/scripts/stage4_train_artifact_check.py \
+          reproduction/stage4/scripts/stage4_runtime_summary.py \
+          reproduction/stage4/local_cfgs/hgsfusion_vod_stage4_train20.yaml \
+          reproduction/stage4/local_cfgs/hgsfusion_tj4d_stage4_train20.yaml \
+          reproduction/stage4/local_cfgs/hgsfusion_vod_stage4_train80_ddp.yaml \
+          reproduction/stage4/outputs/stage4_training_summary.json \
+          reproduction/stage4/outputs/stage4_training_summary.csv \
+          tools/test.py
+  git commit -m "stage4: run bounded training-chain validation and blocker fix"
+  git rev-parse --short HEAD
+  ```
+- exit status: `0`
+- important output excerpt:
+  - `git diff -- README.md` empty before commit.
+  - created commit hash: `1223b0e`
+  - commit message: `stage4: run bounded training-chain validation and blocker fix`
+- files changed:
+  - `reproduction/stage4/` scripts/local cfgs/outputs/docs
+  - `tools/test.py` (minimal non-scalar TensorBoard guard in `repeat_eval_ckpt`)
+- reason: record Stage 4 implementation and validation changes in one coherent commit.
+- next action or blocker: commit final execution-log hash record.
