@@ -31,23 +31,39 @@
 ## Stage 3 Results
 
 ### Stage 3A: VoD full official-checkpoint evaluation
-- status: blocked (conservative baseline runtime infeasible in current run window)
+- status: blocked by hardware/runtime throughput (after runtime-control diagnosis and retry)
 - info pkl audit baseline: `data/vod_radar_5frames/kitti_infos_val.pkl` -> `type=list`, `len=1296`
-- command used:
+- conservative command used:
   - `python tools/test.py --cfg_file reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth --batch_size 1 --workers 0 --extra_tag stage3_vod_full_eval --eval_tag official_ckpt_full_eval`
-- observed eval dir:
+- runtime diagnosis result:
+  - `tools/test.py` had `infer_time=True` by default and set `CUDA_LAUNCH_BLOCKING=1` when inference timing was enabled
+  - minimal runtime-control flag added: `--no_infer_time` (no model/config semantic changes)
+  - source change file: `tools/test.py`
+- short runtime probe (diagnosis only, not success evidence):
+  - command:
+    - `python tools/test.py --cfg_file reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth --batch_size 1 --workers 0 --extra_tag stage3_vod_runtime_probe_noinfertime --eval_tag runtime_probe --no_infer_time`
+  - observed early throughput improved to about `8.25-15.60s/iter` vs prior `34-46s/iter`
+- full retry command used after probe:
+  - `python tools/test.py --cfg_file reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth --batch_size 1 --workers 2 --extra_tag stage3_vod_full_eval_noinfertime_w2 --eval_tag official_ckpt_full_eval --no_infer_time`
+- observed eval dirs:
   - `output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval/eval/epoch_no_number/val/official_ckpt_full_eval`
+  - `output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2/eval/epoch_no_number/val/official_ckpt_full_eval`
 - runtime blocker summary:
   - progress reached `7/1296` at ~`5m21s` (effective `~34-46s/iter` in observed window), projecting multi-hour completion under required conservative settings
-  - run was manually interrupted (`KeyboardInterrupt`) and treated as blocked partial run
+  - no-infer-time full retry reached `51/1296` with sustained `~7.13-7.60s/iter`, still projecting approximately `2.5-2.8` hours for full completion in current environment
+  - both runs were manually interrupted (`KeyboardInterrupt`) and treated as blocked partial runs
 - partial artifact status after interruption:
   - `result.pkl`: missing
   - `final_result/data`: exists with `7` prediction txt files
   - eval log: `log_eval_20260514-085013.txt`, completion markers absent
   - contract check: `FAIL` (`exit 1`) due incomplete artifacts/markers
+- interpretation boundary:
+  - runtime-control fix materially improved throughput
+  - Stage 3A full completion remains blocked in this execution window due hardware/runtime throughput
+  - no Stage 3A pass claim is made
 
 ### Stage 3B: TJ4D full official-checkpoint evaluation
-- status: pending
+- status: not started (held due Stage 3A throughput blocker; explicit instruction required to proceed)
 - info pkl audit baseline: `data/tj4d/kitti_infos_val.pkl` -> `type=list`, `len=2040`
 - split interpretation: official eval split / test-val alias split
 
@@ -65,6 +81,7 @@
 - `reproduction/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval.yaml`
 - `reproduction/stage3/scripts/stage3_eval_contract_check.py`
 - `reproduction/stage3/scripts/stage3_parse_eval_metrics.py`
+- `tools/test.py` (runtime-only CLI control flag `--no_infer_time`)
 
 ## Final Hygiene Result
 - pending
