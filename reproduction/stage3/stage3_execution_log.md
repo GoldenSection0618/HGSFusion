@@ -692,3 +692,29 @@ Out of scope:
   - reproduction/stage3/stage3_execution_log.md
 - reason: clear Stage 3B parser-side blocker and satisfy required contract+parser pass gate before any final hygiene
 - next action or blocker: update Stage 3 reproduction notes and commit allowed tracked changes only
+
+### 2026-05-14T15:18:36+08:00
+- title: Stage 3 final hygiene verification
+- current branch: hgsfusion-stage3-full-official-eval
+- working directory: /home/user/HGSFusion_research/HGSFusion
+- command block executed:
+  git branch --show-current
+  git status --short
+  git diff --stat
+  git diff -- README.md README_UPSTREAM.md reproduction/stage0 reproduction/stage1 reproduction/stage2 || true
+  find . \( -path './output' -o -path '*/final_result' -o -name 'result.pkl' -o -name '*.pyc' -o -name '__pycache__' -o -name 'core*' \) -print
+  find -L data -name 'kitti_infos_stage3_*.pkl' -print || true
+  find -L data -name 'kitti_infos_stage2_*.pkl' -print || true
+- exit status: 0
+- important output excerpt:
+  - current branch confirmed: hgsfusion-stage3-full-official-eval
+  - git status --short: empty (clean working tree before final-hygiene note updates)
+  - git diff --stat: empty
+  - forbidden paths diff (`README.md`, `README_UPSTREAM.md`, `reproduction/stage0`, `reproduction/stage1`, `reproduction/stage2`): empty
+  - runtime artifacts discovered locally (untracked by policy): `./output/.../final_result`, `./output/.../result.pkl`, plus many `__pycache__` and `*.pyc`
+  - stage3 info pkl pattern: no matches (`kitti_infos_stage3_*.pkl`)
+  - stage2 subset info pkls still present: `data/tj4d/kitti_infos_stage2_tj4d_eval_subset20.pkl`, `data/vod_radar_5frames/kitti_infos_stage2_vod_val_subset20.pkl`
+- files changed:
+  - reproduction/stage3/stage3_execution_log.md
+- reason: execute required final hygiene checks after Stage 3A/3B/3C pass and before final Stage 3 closure
+- next action or blocker: finalize Stage 3 notes and commit allowed tracked changes only

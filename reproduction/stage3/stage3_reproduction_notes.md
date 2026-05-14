@@ -121,4 +121,22 @@
 - `reproduction/stage3/stage3_metrics_summary.csv`
 
 ## Final Hygiene Result
-- pending
+- completed
+- `README.md` was untouched.
+- `README_UPSTREAM.md` was untouched.
+- `reproduction/stage0`, `reproduction/stage1`, and `reproduction/stage2` were untouched.
+- Runtime artifacts remain untracked and were not committed.
+- `output/`, `result.pkl`, `final_result/`, and prediction txt files were not committed.
+- Final tracked Stage 3 files:
+  - `reproduction/stage3/stage3_execution_log.md`
+  - `reproduction/stage3/stage3_reproduction_notes.md`
+  - `reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml`
+  - `reproduction/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval.yaml`
+  - `reproduction/stage3/scripts/stage3_eval_contract_check.py`
+  - `reproduction/stage3/scripts/stage3_parse_eval_metrics.py`
+  - `reproduction/stage3/vod_stage3_metrics.json`
+  - `reproduction/stage3/tj4d_stage3_metrics.json`
+  - `reproduction/stage3/stage3_metrics_summary.csv`
+  - `tools/test.py`
+
+Stage 3 completed: full official-checkpoint evaluation completed for VoD and TJ4D with complete artifacts and parsed metrics.
