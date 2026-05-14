@@ -616,3 +616,79 @@ Out of scope:
   - reproduction/stage3/stage3_execution_log.md
 - reason: validate Stage 3A clean run against artifact contract and metric parsing requirements before any TJ4D execution
 - next action or blocker: update Stage 3 notes and commit allowed tracked changes only
+
+### 2026-05-14T15:13:07+08:00
+- title: Stage 3B clean full TJ4D completion with no_infer_time (fresh output tag)
+- current branch: hgsfusion-stage3-full-official-eval
+- working directory: /home/user/HGSFusion_research/HGSFusion
+- command block executed:
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  export CUDA_VISIBLE_DEVICES=0
+  export HGSFUSION_WORKDIR=/home/user/HGSFusion_research
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  export HGSFUSION_DATA_ROOT=/home/user/HGSFusion_research/HGSFusion/data
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PYTHONFAULTHANDLER=1
+  python tools/test.py --cfg_file reproduction/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth --batch_size 1 --workers 2 --extra_tag stage3_tj4d_full_eval_noinfertime_w2_complete --eval_tag official_ckpt_full_eval --no_infer_time
+- exit status: 0
+- important output excerpt:
+  - Generate label finished(sec_per_example: 0.5135 second).
+  - Average predicted number of objects(2040 samples): 5.092
+  - TJ4D weather sections present: Evaluating dark / standard / shiny / all_weather
+  - Result is saved to .../stage3_tj4d_full_eval_noinfertime_w2_complete/.../official_ckpt_full_eval
+  - ****************Evaluation done.*****************
+- files changed:
+  - local runtime artifact dir (untracked): output/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval/stage3_tj4d_full_eval_noinfertime_w2_complete/eval/epoch_4/val/official_ckpt_full_eval/
+- reason: execute full Stage 3B TJ4D official-checkpoint evaluation using validated runtime-control path
+- next action or blocker: run TJ4D contract checker and metric parser on completed eval dir
+
+### 2026-05-14T15:13:07+08:00
+- title: Stage 3B completed eval-dir locate and first validation pass
+- current branch: hgsfusion-stage3-full-official-eval
+- working directory: /home/user/HGSFusion_research/HGSFusion
+- command block executed:
+  find output/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval -type d -path '*stage3_tj4d_full_eval_noinfertime_w2_complete/eval/*/val/official_ckpt_full_eval' | sort
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  EVAL_DIR=output/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval/stage3_tj4d_full_eval_noinfertime_w2_complete/eval/epoch_4/val/official_ckpt_full_eval
+  python reproduction/stage3/scripts/stage3_eval_contract_check.py --dataset tj4d --info-pkl data/tj4d/kitti_infos_val.pkl --eval-dir "$EVAL_DIR"
+  python reproduction/stage3/scripts/stage3_parse_eval_metrics.py --dataset tj4d --eval-dir "$EVAL_DIR" --out-json reproduction/stage3/tj4d_stage3_metrics.json --out-csv reproduction/stage3/stage3_metrics_summary.csv
+- exit status:
+  - eval-dir locate: 0
+  - contract checker: 0 (PASS)
+  - metric parser: 1 (KeyError '__overall__' in parse_tj4d)
+- important output excerpt:
+  - eval dir: output/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval/stage3_tj4d_full_eval_noinfertime_w2_complete/eval/epoch_4/val/official_ckpt_full_eval
+  - contract: result_pkl_exists=True, result_count=2040, prediction_txt_count=2040, weather markers all True, contract_check=PASS
+  - parser traceback points to parse_tj4d overall-metric handling order bug (reproduction script issue)
+- files changed:
+  - reproduction/stage3/stage3_execution_log.md
+- reason: perform required Stage 3B post-run validation; identify parser-side blocker before final Stage 3B pass claim
+- next action or blocker: apply minimal parser fix and rerun parser to achieve contract+parser pass gate
+
+### 2026-05-14T15:13:07+08:00
+- title: Stage 3B parser fix and validation rerun
+- current branch: hgsfusion-stage3-full-official-eval
+- working directory: /home/user/HGSFusion_research/HGSFusion
+- command block executed:
+  edit reproduction/stage3/scripts/stage3_parse_eval_metrics.py (parse_tj4d)
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  EVAL_DIR=output/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval/stage3_tj4d_full_eval_noinfertime_w2_complete/eval/epoch_4/val/official_ckpt_full_eval
+  python reproduction/stage3/scripts/stage3_eval_contract_check.py --dataset tj4d --info-pkl data/tj4d/kitti_infos_val.pkl --eval-dir "$EVAL_DIR"
+  python reproduction/stage3/scripts/stage3_parse_eval_metrics.py --dataset tj4d --eval-dir "$EVAL_DIR" --out-json reproduction/stage3/tj4d_stage3_metrics.json --out-csv reproduction/stage3/stage3_metrics_summary.csv
+- exit status:
+  - contract checker: 0 (PASS)
+  - metric parser: 0 (status ok)
+- important output excerpt:
+  - parser fix: handle `current_class == "__overall__"` metric lines before class-metric assignment
+  - parser output: status=ok, parser_notes_count=0
+  - outputs written: reproduction/stage3/tj4d_stage3_metrics.json and updated reproduction/stage3/stage3_metrics_summary.csv
+- files changed:
+  - reproduction/stage3/scripts/stage3_parse_eval_metrics.py
+  - reproduction/stage3/tj4d_stage3_metrics.json
+  - reproduction/stage3/stage3_metrics_summary.csv
+  - reproduction/stage3/stage3_execution_log.md
+- reason: clear Stage 3B parser-side blocker and satisfy required contract+parser pass gate before any final hygiene
+- next action or blocker: update Stage 3 reproduction notes and commit allowed tracked changes only

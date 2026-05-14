@@ -143,7 +143,17 @@ def parse_tj4d(lines, parser_notes):
                 continue
 
             metric_match = metric_re.match(stripped)
-            if metric_match and current_class and current_thresh:
+            if metric_match and current_class == "__overall__":
+                values = [v.strip() for v in metric_match.group(2).split(",") if v.strip()]
+                try:
+                    parsed_values = [float(v) for v in values]
+                except ValueError:
+                    parser_notes.append(f"non-numeric overall AP line in {weather}: {stripped}")
+                    continue
+                weather_metrics.setdefault("overall", {})[metric_match.group(1)] = parsed_values
+                continue
+
+            if metric_match and current_class and current_thresh and current_class != "__overall__":
                 values = [v.strip() for v in metric_match.group(2).split(",") if v.strip()]
                 try:
                     parsed_values = [float(v) for v in values]
@@ -160,15 +170,6 @@ def parse_tj4d(lines, parser_notes):
                 current_class = "__overall__"
                 current_thresh = "easy_moderate_hard"
                 continue
-
-            if metric_match and current_class == "__overall__":
-                values = [v.strip() for v in metric_match.group(2).split(",") if v.strip()]
-                try:
-                    parsed_values = [float(v) for v in values]
-                except ValueError:
-                    parser_notes.append(f"non-numeric overall AP line in {weather}: {stripped}")
-                    continue
-                weather_metrics.setdefault("overall", {})[metric_match.group(1)] = parsed_values
 
         metrics[weather] = weather_metrics
 

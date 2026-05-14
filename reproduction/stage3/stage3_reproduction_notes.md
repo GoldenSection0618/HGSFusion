@@ -78,19 +78,35 @@
   - metric summary CSV: `reproduction/stage3/stage3_metrics_summary.csv`
 
 ### Stage 3B: TJ4D full official-checkpoint evaluation
-- status: not started (Stage 3A pass gate satisfied; awaiting explicit instruction to start TJ4D)
+- status: passed (full completion achieved with no_infer_time and fresh full-eval output tag)
 - info pkl audit baseline: `data/tj4d/kitti_infos_val.pkl` -> `type=list`, `len=2040`
 - split interpretation: official eval split / test-val alias split
+- command used:
+  - `python tools/test.py --cfg_file reproduction/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth --batch_size 1 --workers 2 --extra_tag stage3_tj4d_full_eval_noinfertime_w2_complete --eval_tag official_ckpt_full_eval --no_infer_time`
+- observed eval dir:
+  - `output/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval/stage3_tj4d_full_eval_noinfertime_w2_complete/eval/epoch_4/val/official_ckpt_full_eval`
+- completion artifact checks:
+  - `result.pkl` exists with count `2040`
+  - `final_result/data` exists with prediction txt count `2040`
+  - completion log markers present: `recall_roi`, `recall_rcnn`, `Average predicted number`, `Result is saved`, `Evaluation done`
+  - TJ4D weather markers present: `Evaluating dark`, `Evaluating standard`, `Evaluating shiny`, `Evaluating all_weather`
+  - contract checker: `PASS` (`exit 0`)
+- parser note:
+  - initial parser run failed with `KeyError: '__overall__'` in `stage3_parse_eval_metrics.py` (parser script bug, not eval runtime failure)
+  - minimal parser fix applied by handling overall metric lines before class-metric assignment
+  - rerun parser status: `ok` (`exit 0`)
+  - metric JSON: `reproduction/stage3/tj4d_stage3_metrics.json`
+  - metric summary CSV updated: `reproduction/stage3/stage3_metrics_summary.csv`
 
 ### Stage 3C: Metric parsing and summary
-- status: partially complete
+- status: passed for Stage 3A/3B outputs
 - target outputs:
   - `reproduction/stage3/vod_stage3_metrics.json`
   - `reproduction/stage3/tj4d_stage3_metrics.json`
   - `reproduction/stage3/stage3_metrics_summary.csv`
 - current parser outputs:
   - VoD metrics parsed and saved (status `ok`, parser notes `0`)
-  - TJ4D metrics not started in this turn (deferred until TJ4D full eval execution)
+  - TJ4D metrics parsed and saved (status `ok`, parser notes `0`)
 
 ## Files Changed In Stage 3
 - `reproduction/stage3/stage3_execution_log.md`
@@ -101,6 +117,7 @@
 - `reproduction/stage3/scripts/stage3_parse_eval_metrics.py`
 - `tools/test.py` (runtime-only CLI control flag `--no_infer_time`)
 - `reproduction/stage3/vod_stage3_metrics.json`
+- `reproduction/stage3/tj4d_stage3_metrics.json`
 - `reproduction/stage3/stage3_metrics_summary.csv`
 
 ## Final Hygiene Result
