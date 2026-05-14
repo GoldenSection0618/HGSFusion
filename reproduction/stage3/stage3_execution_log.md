@@ -460,3 +460,22 @@ Out of scope:
   - reproduction/stage3/stage3_execution_log.md
 - reason: diagnose runtime-control path before retrying Stage 3A full evaluation under authorized minimal runtime adjustments
 - next action or blocker: apply minimal runtime-control fix in tools/test.py to allow --no_infer_time
+
+### 2026-05-14T09:05:09+08:00
+- current branch: hgsfusion-stage3-full-official-eval
+- working directory: /home/user/HGSFusion_research/HGSFusion
+- command block executed:
+  edit tools/test.py to add CLI flag --no_infer_time (dest infer_time, action store_false)
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  python tools/test.py --help | rg -n "infer_time|no_infer_time|save_to_file"
+- exit status: 0
+- important output excerpt:
+  - help output includes --no_infer_time
+  - existing default behavior preserved: infer_time default remains True
+  - runtime override now available: passing --no_infer_time sets args.infer_time to False
+- files changed:
+  - tools/test.py
+  - reproduction/stage3/stage3_execution_log.md
+- reason: minimal runtime-control fix to disable inference timing only when explicitly requested
+- next action or blocker: commit runtime flag fix, then run short VoD runtime probe with --no_infer_time
