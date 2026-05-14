@@ -479,3 +479,33 @@ Out of scope:
   - reproduction/stage3/stage3_execution_log.md
 - reason: minimal runtime-control fix to disable inference timing only when explicitly requested
 - next action or blocker: commit runtime flag fix, then run short VoD runtime probe with --no_infer_time
+
+### 2026-05-14T09:07:16+08:00
+- title: Stage 3A runtime probe with no_infer_time (diagnosis only)
+- current branch: hgsfusion-stage3-full-official-eval
+- working directory: /home/user/HGSFusion_research/HGSFusion
+- command block executed:
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  export CUDA_VISIBLE_DEVICES=0
+  export HGSFUSION_WORKDIR=/home/user/HGSFusion_research
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  export HGSFUSION_DATA_ROOT=/home/user/HGSFusion_research/HGSFusion/data
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:/home/user/.local/bin:/home/user/.codex/tmp/arg0/codex-arg0HFIcXR:/home/user/.vscode-server/bin/0958016b2af9f09bb4257e0df4a95e2f90590f9f/bin/remote-cli:/home/user/.local/bin:/usr/local/cuda-11.7/bin:/home/user/.local/bin:/home/user/.nvm/versions/node/v24.15.0/bin:/home/user/miniforge3/bin:/home/user/miniforge3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/prts/AppData/Local/Programs/Microsoft VS Code:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2025.2.1:/mnt/d/InterpreterFolder/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/bin/Hostx64/x64:/mnt/d/InterpreterFolder/Microsoft Visual Studio/2022/Community/Common7/IDE:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0:/mnt/c/WINDOWS/System32/OpenSSH:/mnt/c/WINDOWS/System32/DriverStore/FileRepository/nvltsi.inf_amd64_16a28bc7037ec190:/mnt/d/Windows Kits/10/Windows Performance Toolkit:/mnt/d/InterpreterFolder/texlive/2025/bin/windows:/mnt/d/InterpreterFolder/Java/maven/apache-maven-3.9.11/bin:/mnt/c/Program Files/MySQL/MySQL Server 8.0/bin:/mnt/c/Program Files/dotnet:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/bin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/libnvvp:/mnt/c/Users/prts/AppData/Local/Android/Sdk/platform-tools:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/d/InterpreterFolder/rust/bin:/mnt/c/Users/prts/AppData/Local/Programs/Python/Python312/Scripts:/mnt/c/Users/prts/AppData/Local/Programs/Python/Python312:/mnt/c/Users/prts/AppData/Local/Programs/Python/Launcher:/mnt/c/Users/prts/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/prts/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/d/InterpreterFolder/RISC-Vcompiler/gcc/bin:/mnt/d/InterpreterFolder/mingw64/bin:/mnt/d/InterpreterFolder/mingw64/include:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/bin:/mnt/d/InterpreterFolder/Typst:/mnt/d/InterpreterFolder/PortableGit/bin:/mnt/d/PhotoVideo/ffmpeg-2025-12-10-full_build/bin:/mnt/d/InterpreterFolder/CodeBuddy CN/bin:/mnt/d/InterpreterFolder/SysGCC/bin:/mnt/c/Users/prts/.local/bin:/mnt/d/InterpreterFolder/exiftool-13.54_64:/mnt/c/Users/prts/.lmstudio/bin:/snap/bin:/home/user/.vscode-server/extensions/openai.chatgpt-26.506.31421-linux-x64/bin/linux-x86_64
+  export LD_LIBRARY_PATH=/home/user/miniforge3/lib:/home/user/miniforge3/lib/python3.9/site-packages/torch/lib:/usr/local/cuda-11.7/lib64:/usr/lib/wsl/lib:/usr/local/cuda-11.7/lib64:
+  export PYTHONFAULTHANDLER=1
+  hash -r
+  python tools/test.py --cfg_file reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth --batch_size 1 --workers 0 --extra_tag stage3_vod_runtime_probe_noinfertime --eval_tag runtime_probe --no_infer_time
+  Ctrl-C after short timing window
+- exit status: 1 (intentional KeyboardInterrupt for short probe)
+- important output excerpt:
+  - run entered full VoD eval loop (1296 samples) with no_infer_time enabled
+  - observed early throughput around 15.60s/iter -> 11.18s/iter -> 9.58s/iter -> 8.96s/iter -> 8.46s/iter -> 8.25s/iter
+  - baseline conservative run with infer_time path had roughly 34-46s/iter in sampled window
+  - diagnosis result: material speed improvement confirmed; probe is runtime diagnosis only and not counted as Stage 3 success
+- files changed:
+  - reproduction/stage3/stage3_execution_log.md
+  - local runtime artifact dir (untracked): output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_runtime_probe_noinfertime/eval/epoch_no_number/val/runtime_probe/
+- reason: verify impact of disabling inference timing before retrying Stage 3A full evaluation
+- next action or blocker: rerun full VoD with no_infer_time and controlled workers setting
