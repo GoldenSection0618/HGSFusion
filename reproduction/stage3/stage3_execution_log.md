@@ -296,3 +296,48 @@ Out of scope:
   - `reproduction/stage3/stage3_execution_log.md`
 - reason: add required Stage 3 metric parsing utility and summary writer
 - next action or blocker: run Stage 3 pre-full-eval data/checkpoint audit and record counts
+
+### 2026-05-14T08:48:36+08:00
+- current branch: `hgsfusion-stage3-full-official-eval`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+
+  ls -lh data/vod_radar_5frames/kitti_infos_val.pkl
+  ls -lh data/tj4d/kitti_infos_val.pkl
+  ls -lh /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth
+  ls -lh /home/user/HGSFusion_research/checkpoints/hgsfusion_tj4d.pth
+  ls -lh /home/user/HGSFusion_research/checkpoints/deeplabv3_resnet101_coco-586e9e4e.pth
+
+  python - <<'PY'
+  import pickle
+  from pathlib import Path
+  for path in [
+      Path('data/vod_radar_5frames/kitti_infos_val.pkl'),
+      Path('data/tj4d/kitti_infos_val.pkl'),
+  ]:
+      with open(path, 'rb') as f:
+          obj = pickle.load(f)
+      print(f'{path}: type={type(obj).__name__}, len={len(obj)}')
+      first = obj[0] if obj else None
+      if isinstance(first, dict):
+          print(f'  first_keys={sorted(first.keys())}')
+          pc = first.get('point_cloud', {})
+          image = first.get('image', {})
+          print(f'  first_lidar_idx={pc.get("lidar_idx")}, first_image_idx={image.get("image_idx")}')
+  PY
+  ```
+- exit status: `0`
+- important output excerpt:
+  - `data/vod_radar_5frames/kitti_infos_val.pkl` exists, `type=list`, `len=1296`
+  - `data/tj4d/kitti_infos_val.pkl` exists, `type=list`, `len=2040`
+  - VoD first sample ids: `lidar_idx=00000`, `image_idx=00000`
+  - TJ4D first sample ids: `lidar_idx=000000`, `image_idx=000000`
+  - official checkpoints and DeepLabV3 pretrained file paths are present
+- files changed:
+  - `reproduction/stage3/stage3_execution_log.md`
+  - `reproduction/stage3/stage3_reproduction_notes.md`
+- reason: pre-full-evaluation integrity audit for required data/index/checkpoint assets
+- next action or blocker: run Stage 3A full VoD official-checkpoint evaluation
