@@ -1,0 +1,58 @@
+[
+  {
+    "dataset": "tj4d",
+    "mode": "tj4d_single_gpu",
+    "cfg_file": "/home/user/HGSFusion_research/HGSFusion/output/stage4/local_cfgs/hgsfusion_tj4d_stage4_train20/stage4_tj4d_train20_e1_sg/hgsfusion_tj4d_stage4_train20.yaml",
+    "extra_tag": "stage4_tj4d_train20_e1_sg",
+    "epochs_requested": "",
+    "batch_size": "",
+    "workers": "",
+    "output_directory": "/home/user/HGSFusion_research/HGSFusion/output/stage4/local_cfgs/hgsfusion_tj4d_stage4_train20/stage4_tj4d_train20_e1_sg",
+    "checkpoint_created": "yes",
+    "eval_artifact_check": "pass",
+    "approx_runtime_seconds": "0.0",
+    "final_status": "success"
+  },
+  {
+    "dataset": "tj4d",
+    "mode": "tj4d_single_gpu",
+    "cfg_file": "/home/user/HGSFusion_research/HGSFusion/output/stage4/local_cfgs/hgsfusion_tj4d_stage4_train20/stage4_tj4d_train20_e1_sg_fix1/hgsfusion_tj4d_stage4_train20.yaml",
+    "extra_tag": "stage4_tj4d_train20_e1_sg_fix1",
+    "epochs_requested": "",
+    "batch_size": "",
+    "workers": "",
+    "output_directory": "/home/user/HGSFusion_research/HGSFusion/output/stage4/local_cfgs/hgsfusion_tj4d_stage4_train20/stage4_tj4d_train20_e1_sg_fix1",
+    "checkpoint_created": "yes",
+    "eval_artifact_check": "pass",
+    "approx_runtime_seconds": "0.0",
+    "final_status": "success"
+  },
+  {
+    "dataset": "vod",
+    "mode": "single_gpu",
+    "cfg_file": "/home/user/HGSFusion_research/HGSFusion/output/stage4/local_cfgs/hgsfusion_vod_stage4_train20/stage4_vod_train20_e1_sg/hgsfusion_vod_stage4_train20.yaml",
+    "extra_tag": "stage4_vod_train20_e1_sg",
+    "epochs_requested": "",
+    "batch_size": "",
+    "workers": "",
+    "output_directory": "/home/user/HGSFusion_research/HGSFusion/output/stage4/local_cfgs/hgsfusion_vod_stage4_train20/stage4_vod_train20_e1_sg",
+    "checkpoint_created": "yes",
+    "eval_artifact_check": "pass",
+    "approx_runtime_seconds": "0.0",
+    "final_status": "success"
+  },
+  {
+    "dataset": "vod",
+    "mode": "resume",
+    "cfg_file": "/home/user/HGSFusion_research/HGSFusion/output/stage4/local_cfgs/hgsfusion_vod_stage4_train20/stage4_vod_train20_resume_e2_sg/hgsfusion_vod_stage4_train20.yaml",
+    "extra_tag": "stage4_vod_train20_resume_e2_sg",
+    "epochs_requested": "",
+    "batch_size": "",
+    "workers": "",
+    "output_directory": "/home/user/HGSFusion_research/HGSFusion/output/stage4/local_cfgs/hgsfusion_vod_stage4_train20/stage4_vod_train20_resume_e2_sg",
+    "checkpoint_created": "yes",
+    "eval_artifact_check": "pass",
+    "approx_runtime_seconds": "0.0",
+    "final_status": "success"
+  }
+]
