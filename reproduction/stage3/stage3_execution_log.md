@@ -166,3 +166,70 @@ Out of scope:
   - `reproduction/stage3/stage3_execution_log.md`
 - reason: verify Stage 3 runtime environment alignment before full evaluation
 - next action or blocker: copy Stage 3 local full-eval configs and verify diffs
+
+### 2026-05-14T08:45:06+08:00
+- current branch: `hgsfusion-stage3-full-official-eval`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cp tools/cfgs/hgsfusion/hgsfusion_vod.yaml     reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml
+
+  cp tools/cfgs/hgsfusion/hgsfusion_tj4d.yaml     reproduction/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval.yaml
+
+  diff -u tools/cfgs/hgsfusion/hgsfusion_vod.yaml     reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml || true
+
+  diff -u tools/cfgs/hgsfusion/hgsfusion_tj4d.yaml     reproduction/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval.yaml || true
+  ```
+- exit status: `0`
+- important output excerpt:
+  - both  commands produced no output
+  - local Stage 3 cfg copies are functionally identical to official cfg files
+- files changed:
+  - 
+  - 
+  - 
+- reason: create Stage 3 local cfg copies for full official-checkpoint evaluation without functional config drift
+- next action or blocker: create Stage 3 evaluation contract checker script and run 
+
+### 2026-05-14T08:45:29+08:00
+- current branch: `hgsfusion-stage3-full-official-eval`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cat >> reproduction/stage3/stage3_execution_log.md <<EOF
+  ... markdown with backticks ...
+  EOF
+  ```
+- exit status: `0` (logical failure in content generation)
+- important output excerpt:
+  - shell attempted to execute text inside backticks due unquoted heredoc
+  - stderr included `diff: missing operand after '-u'`, `Permission denied`, and `--help: command not found`
+  - resulting appended entry at `2026-05-14T08:45:06+08:00` became partially malformed
+- files changed:
+  - `reproduction/stage3/stage3_execution_log.md` (malformed partial entry appended)
+- reason: attempted to append config-step log entry using an unsafe heredoc quoting mode
+- next action or blocker: append a corrected note with full config-step details using single-quoted heredoc; keep append-only history intact
+
+### 2026-05-14T08:45:41+08:00
+- current branch: `hgsfusion-stage3-full-official-eval`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cp tools/cfgs/hgsfusion/hgsfusion_vod.yaml     reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml
+
+  cp tools/cfgs/hgsfusion/hgsfusion_tj4d.yaml     reproduction/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval.yaml
+
+  diff -u tools/cfgs/hgsfusion/hgsfusion_vod.yaml     reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml || true
+
+  diff -u tools/cfgs/hgsfusion/hgsfusion_tj4d.yaml     reproduction/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval.yaml || true
+  ```
+- exit status: `0`
+- important output excerpt:
+  - both diff checks returned no textual diff
+  - Stage 3 local cfg copies are identical to source official cfgs
+- files changed:
+  - `reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml`
+  - `reproduction/stage3/local_cfgs/hgsfusion_tj4d_stage3_full_eval.yaml`
+  - `reproduction/stage3/stage3_execution_log.md`
+- reason: establish Stage 3 full-eval config copies while preserving official configuration behavior
+- next action or blocker: implement Stage 3 contract checker script and validate CLI
