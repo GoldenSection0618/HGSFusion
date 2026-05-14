@@ -407,3 +407,56 @@ Out of scope:
   - local runtime artifact predictions (untracked): `.../final_result/data/*.txt` (current count 7)
 - reason: execute Stage 3A full VoD official-checkpoint evaluation and validate artifacts; stop at severe runtime blocker under required conservative baseline settings
 - next action or blocker: Stage 3 flow blocked before completion of Stage 3A; further steps (Stage 3B/3C/final hygiene) not executed in this run
+
+### 2026-05-14T09:04:05+08:00
+- title: Stage 3A runtime diagnosis after conservative full-eval blocker
+- current branch: `hgsfusion-stage3-full-official-eval`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  tail -n 120 reproduction/stage3/stage3_execution_log.md
+  rg -n 'infer_time|CUDA_LAUNCH_BLOCKING|save_to_file' tools/test.py tools/eval_utils/eval_utils.py
+  ```
+- exit status: `0`
+- important output excerpt:
+  -  ->  is defined as 
+  -  -> when  is true,  is set
+  -  uses  for per-iteration timing/sync logic
+  - current CLI does not expose a disable flag for inference timing; with default , timing mode remains effectively always enabled
+- files changed:
+  - 
+- reason: diagnose runtime-control path before retrying Stage 3A full evaluation under authorized minimal runtime adjustments
+- next action or blocker: apply minimal runtime-control fix in  to allow 
+
+### 2026-05-14T09:04:29+08:00
+- title: Stage 3A runtime diagnosis append-command failure record
+- current branch: hgsfusion-stage3-full-official-eval
+- working directory: /home/user/HGSFusion_research/HGSFusion
+- command block executed:
+  bash heredoc append for execution-log entry (unsafe quoting mode)
+- exit status: non-zero (shell command-substitution side effects)
+- important output excerpt:
+  - shell tried to execute markdown content fragments and emitted errors including "No such file or directory", "command not found", and "Permission denied"
+  - the partially appended diagnosis entry at timestamp 2026-05-14T09:04:05+08:00 has blanked field values
+- files changed:
+  - reproduction/stage3/stage3_execution_log.md (partial malformed entry already appended)
+- reason: preserve append-only history and record failed log-write operation before correction
+- next action or blocker: append corrected diagnosis record with complete findings
+
+### 2026-05-14T09:04:29+08:00
+- title: Stage 3A runtime diagnosis after conservative full-eval blocker (corrected)
+- current branch: hgsfusion-stage3-full-official-eval
+- working directory: /home/user/HGSFusion_research/HGSFusion
+- command block executed:
+  tail -n 120 reproduction/stage3/stage3_execution_log.md
+  rg -n 'infer_time|CUDA_LAUNCH_BLOCKING|save_to_file' tools/test.py tools/eval_utils/eval_utils.py
+- exit status: 0
+- important output excerpt:
+  - tools/test.py line 43 defines --infer_time with action store_true and default True
+  - tools/test.py lines 142-143 set CUDA_LAUNCH_BLOCKING=1 when args.infer_time is True
+  - tools/eval_utils/eval_utils.py uses args.infer_time guards around per-iteration timing and CUDA synchronize logic
+  - current CLI has no disable flag, so infer_time stays effectively always enabled in normal runs
+- files changed:
+  - reproduction/stage3/stage3_execution_log.md
+- reason: diagnose runtime-control path before retrying Stage 3A full evaluation under authorized minimal runtime adjustments
+- next action or blocker: apply minimal runtime-control fix in tools/test.py to allow --no_infer_time
