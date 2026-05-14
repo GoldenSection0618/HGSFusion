@@ -233,3 +233,23 @@ Out of scope:
   - `reproduction/stage3/stage3_execution_log.md`
 - reason: establish Stage 3 full-eval config copies while preserving official configuration behavior
 - next action or blocker: implement Stage 3 contract checker script and validate CLI
+
+### 2026-05-14T08:46:38+08:00
+- current branch: `hgsfusion-stage3-full-official-eval`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  create reproduction/stage3/scripts/stage3_eval_contract_check.py
+  chmod +x reproduction/stage3/scripts/stage3_eval_contract_check.py
+  python reproduction/stage3/scripts/stage3_eval_contract_check.py --help
+  ```
+- exit status: `0`
+- important output excerpt:
+  - CLI arguments validated: `--info-pkl`, `--eval-dir`, `--dataset {vod,tj4d}`
+  - script implements list-type pickle checks, result/info length checks, prediction txt-count checks, log-marker checks, dataset-specific marker checks
+  - exit code contract implemented: `0=pass`, `1=contract failure`, `2=invalid path/args/unreadable malformed artifact`
+- files changed:
+  - `reproduction/stage3/scripts/stage3_eval_contract_check.py`
+  - `reproduction/stage3/stage3_execution_log.md`
+- reason: add Stage 3 full-evaluation artifact contract validator required by execution plan
+- next action or blocker: implement Stage 3 metric parser script and validate CLI
