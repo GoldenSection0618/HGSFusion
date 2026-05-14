@@ -115,3 +115,54 @@ Out of scope:
   - `reproduction/stage3/stage3_reproduction_notes.md`
 - reason: initialize mandatory Stage 3 record structure before evaluation tasks
 - next action or blocker: commit initialization records, then run Stage 3 environment audit
+
+### 2026-05-14T08:44:44+08:00
+- current branch: `hgsfusion-stage3-full-official-eval`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  cd /home/user/HGSFusion_research/HGSFusion
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+
+  export CUDA_VISIBLE_DEVICES=0
+  export HGSFUSION_WORKDIR=/home/user/HGSFusion_research
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  export HGSFUSION_DATA_ROOT=/home/user/HGSFusion_research/HGSFusion/data
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:$PATH
+  export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.9/site-packages/torch/lib:/usr/local/cuda-11.7/lib64:/usr/lib/wsl/lib:${LD_LIBRARY_PATH:-}
+  export PYTHONFAULTHANDLER=1
+  hash -r
+
+  which python
+  python --version
+  python - <<'PY'
+  import torch
+  import mmcv
+  import mmengine
+  import mmdet
+  print('torch:', torch.__version__)
+  print('torch.version.cuda:', torch.version.cuda)
+  print('torch.cuda.is_available:', torch.cuda.is_available())
+  print('mmcv:', mmcv.__version__)
+  print('mmengine:', mmengine.__version__)
+  print('mmdet:', mmdet.__version__)
+  PY
+
+  echo "CUDA_HOME=${CUDA_HOME:-}"
+  which nvcc
+  nvcc --version
+  ```
+- exit status: `0`
+- important output excerpt:
+  - `python` = `/home/user/miniforge3/envs/hgsfusion_a17/bin/python`
+  - `Python 3.9.23`
+  - `torch 1.13.1+cu117`, `torch.version.cuda 11.7`, `torch.cuda.is_available True`
+  - `mmcv 2.1.0`, `mmengine 0.10.7`, `mmdet 3.3.0`
+  - `CUDA_HOME=/usr/local/cuda-11.7`
+  - `nvcc release 11.7, V11.7.99`
+- files changed:
+  - `reproduction/stage3/stage3_execution_log.md`
+- reason: verify Stage 3 runtime environment alignment before full evaluation
+- next action or blocker: copy Stage 3 local full-eval configs and verify diffs
