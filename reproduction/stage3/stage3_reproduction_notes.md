@@ -31,8 +31,20 @@
 ## Stage 3 Results
 
 ### Stage 3A: VoD full official-checkpoint evaluation
-- status: pending
+- status: blocked (conservative baseline runtime infeasible in current run window)
 - info pkl audit baseline: `data/vod_radar_5frames/kitti_infos_val.pkl` -> `type=list`, `len=1296`
+- command used:
+  - `python tools/test.py --cfg_file reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth --batch_size 1 --workers 0 --extra_tag stage3_vod_full_eval --eval_tag official_ckpt_full_eval`
+- observed eval dir:
+  - `output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval/eval/epoch_no_number/val/official_ckpt_full_eval`
+- runtime blocker summary:
+  - progress reached `7/1296` at ~`5m21s` (effective `~34-46s/iter` in observed window), projecting multi-hour completion under required conservative settings
+  - run was manually interrupted (`KeyboardInterrupt`) and treated as blocked partial run
+- partial artifact status after interruption:
+  - `result.pkl`: missing
+  - `final_result/data`: exists with `7` prediction txt files
+  - eval log: `log_eval_20260514-085013.txt`, completion markers absent
+  - contract check: `FAIL` (`exit 1`) due incomplete artifacts/markers
 
 ### Stage 3B: TJ4D full official-checkpoint evaluation
 - status: pending
@@ -40,7 +52,7 @@
 - split interpretation: official eval split / test-val alias split
 
 ### Stage 3C: Metric parsing and summary
-- status: pending
+- status: pending (blocked by Stage 3A non-completion)
 - target outputs:
   - `reproduction/stage3/vod_stage3_metrics.json`
   - `reproduction/stage3/tj4d_stage3_metrics.json`

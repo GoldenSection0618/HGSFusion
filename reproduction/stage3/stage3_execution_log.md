@@ -341,3 +341,69 @@ Out of scope:
   - `reproduction/stage3/stage3_reproduction_notes.md`
 - reason: pre-full-evaluation integrity audit for required data/index/checkpoint assets
 - next action or blocker: run Stage 3A full VoD official-checkpoint evaluation
+
+### 2026-05-14T08:56:41+08:00
+- current branch: `hgsfusion-stage3-full-official-eval`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+
+  export CUDA_VISIBLE_DEVICES=0
+  export HGSFUSION_WORKDIR=/home/user/HGSFusion_research
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  export HGSFUSION_DATA_ROOT=/home/user/HGSFusion_research/HGSFusion/data
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PATH=/usr/local/cuda-11.7/bin:$PATH
+  export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.9/site-packages/torch/lib:/usr/local/cuda-11.7/lib64:/usr/lib/wsl/lib:${LD_LIBRARY_PATH:-}
+  export PYTHONFAULTHANDLER=1
+  hash -r
+
+  python tools/test.py \
+    --cfg_file reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml \
+    --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth \
+    --batch_size 1 \
+    --workers 0 \
+    --extra_tag stage3_vod_full_eval \
+    --eval_tag official_ckpt_full_eval
+
+  # runtime sampling and status checks while process was running
+  nvidia-smi --query-gpu=name,utilization.gpu,memory.used,memory.total --format=csv,noheader
+
+  # interrupted long-running process
+  Ctrl-C
+
+  find output -path '*stage3_vod_full_eval*official_ckpt_full_eval*' -type d | sort
+  find output -path '*stage3_vod_full_eval*official_ckpt_full_eval*' -type f | sort | head -200
+
+  # first checker attempt outside conda (failed dependency)
+  python reproduction/stage3/scripts/stage3_eval_contract_check.py \
+    --dataset vod \
+    --info-pkl data/vod_radar_5frames/kitti_infos_val.pkl \
+    --eval-dir output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval/eval/epoch_no_number/val/official_ckpt_full_eval
+
+  # rerun checker inside conda env
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  python reproduction/stage3/scripts/stage3_eval_contract_check.py \
+    --dataset vod \
+    --info-pkl data/vod_radar_5frames/kitti_infos_val.pkl \
+    --eval-dir output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval/eval/epoch_no_number/val/official_ckpt_full_eval
+  ```
+- exit status: `1` for interrupted `tools/test.py`; checker rerun in conda returned `1` (contract fail)
+- important output excerpt:
+  - evaluation started successfully: `Total samples for KITTI dataset: 1296`, checkpoint load `936/936`
+  - observed progress before interruption: `7/1296` at about `5m21s`, observed iter speed roughly `34-46s/iter` in sampled window
+  - sampled GPU status during run: `RTX 4060 Laptop GPU, util 100%, memory 7580/8188 MiB`
+  - interruption traceback ended with `KeyboardInterrupt` during forward path (`transform_utils.normalize_coords` call stack)
+  - first checker attempt outside conda failed with `No module named 'numpy'` (exit 2)
+  - conda checker rerun: `contract_check: FAIL`, `result_pkl_exists: False`, `prediction_txt_count: 7`, completion markers absent
+- files changed:
+  - `reproduction/stage3/stage3_execution_log.md`
+  - `reproduction/stage3/stage3_reproduction_notes.md`
+  - local runtime artifact dir (untracked): `output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval/eval/epoch_no_number/val/official_ckpt_full_eval/`
+  - local runtime artifact log (untracked): `.../log_eval_20260514-085013.txt`
+  - local runtime artifact predictions (untracked): `.../final_result/data/*.txt` (current count 7)
+- reason: execute Stage 3A full VoD official-checkpoint evaluation and validate artifacts; stop at severe runtime blocker under required conservative baseline settings
+- next action or blocker: Stage 3 flow blocked before completion of Stage 3A; further steps (Stage 3B/3C/final hygiene) not executed in this run
