@@ -31,7 +31,7 @@
 ## Stage 3 Results
 
 ### Stage 3A: VoD full official-checkpoint evaluation
-- status: blocked by hardware/runtime throughput (after runtime-control diagnosis and retry)
+- status: passed (full completion achieved with runtime-control flag and fresh full-eval output tag)
 - info pkl audit baseline: `data/vod_radar_5frames/kitti_infos_val.pkl` -> `type=list`, `len=1296`
 - conservative command used:
   - `python tools/test.py --cfg_file reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth --batch_size 1 --workers 0 --extra_tag stage3_vod_full_eval --eval_tag official_ckpt_full_eval`
@@ -45,9 +45,12 @@
   - observed early throughput improved to about `8.25-15.60s/iter` vs prior `34-46s/iter`
 - full retry command used after probe:
   - `python tools/test.py --cfg_file reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth --batch_size 1 --workers 2 --extra_tag stage3_vod_full_eval_noinfertime_w2 --eval_tag official_ckpt_full_eval --no_infer_time`
+- completion command used for clean full run (fresh output tag):
+  - `python tools/test.py --cfg_file reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth --batch_size 1 --workers 2 --extra_tag stage3_vod_full_eval_noinfertime_w2_complete --eval_tag official_ckpt_full_eval --no_infer_time`
 - observed eval dirs:
   - `output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval/eval/epoch_no_number/val/official_ckpt_full_eval`
   - `output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2/eval/epoch_no_number/val/official_ckpt_full_eval`
+  - `output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2_complete/eval/epoch_no_number/val/official_ckpt_full_eval`
 - runtime blocker summary:
   - progress reached `7/1296` at ~`5m21s` (effective `~34-46s/iter` in observed window), projecting multi-hour completion under required conservative settings
   - no-infer-time full retry reached `51/1296` with sustained `~7.13-7.60s/iter`, still projecting approximately `2.5-2.8` hours for full completion in current environment
@@ -62,20 +65,32 @@
   - metric parser: `exit 1` (`missing_required_sections`) on partial log; diagnostic outputs written only to `/tmp`
 - interpretation boundary:
   - runtime-control fix materially improved throughput
-  - Stage 3A full completion remains blocked in this execution window due hardware/runtime throughput
-  - no Stage 3A pass claim is made
+  - earlier attempts remained runtime-throughput constrained, but the clean full run completed successfully
+  - Stage 3A pass claim is based only on the completed clean run output tag (`stage3_vod_full_eval_noinfertime_w2_complete`)
+- Stage 3A completion artifact checks (clean full run):
+  - `result.pkl` exists with count `1296`
+  - `final_result/data` exists with prediction txt count `1296`
+  - completion log markers present: `recall_roi`, `recall_rcnn`, `Average predicted number`, `Result is saved`, `Evaluation done`
+  - VoD metric section markers present: `Entire annotated area`, `Driving corridor area`, `mAP`
+  - contract checker: `PASS` (`exit 0`)
+  - metric parser: `ok` (`exit 0`)
+  - metric JSON: `reproduction/stage3/vod_stage3_metrics.json`
+  - metric summary CSV: `reproduction/stage3/stage3_metrics_summary.csv`
 
 ### Stage 3B: TJ4D full official-checkpoint evaluation
-- status: not started (held due Stage 3A throughput blocker; explicit instruction required to proceed)
+- status: not started (Stage 3A pass gate satisfied; awaiting explicit instruction to start TJ4D)
 - info pkl audit baseline: `data/tj4d/kitti_infos_val.pkl` -> `type=list`, `len=2040`
 - split interpretation: official eval split / test-val alias split
 
 ### Stage 3C: Metric parsing and summary
-- status: pending (blocked by Stage 3A non-completion)
+- status: partially complete
 - target outputs:
   - `reproduction/stage3/vod_stage3_metrics.json`
   - `reproduction/stage3/tj4d_stage3_metrics.json`
   - `reproduction/stage3/stage3_metrics_summary.csv`
+- current parser outputs:
+  - VoD metrics parsed and saved (status `ok`, parser notes `0`)
+  - TJ4D metrics not started in this turn (deferred until TJ4D full eval execution)
 
 ## Files Changed In Stage 3
 - `reproduction/stage3/stage3_execution_log.md`
@@ -85,6 +100,8 @@
 - `reproduction/stage3/scripts/stage3_eval_contract_check.py`
 - `reproduction/stage3/scripts/stage3_parse_eval_metrics.py`
 - `tools/test.py` (runtime-only CLI control flag `--no_infer_time`)
+- `reproduction/stage3/vod_stage3_metrics.json`
+- `reproduction/stage3/stage3_metrics_summary.csv`
 
 ## Final Hygiene Result
 - pending

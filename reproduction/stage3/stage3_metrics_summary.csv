@@ -1,0 +1,2 @@
+dataset,eval_dir,log_file,split_context,status,metrics_keys,parser_notes_count
+vod,output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2_complete/eval/epoch_no_number/val/official_ckpt_full_eval,/home/user/HGSFusion_research/HGSFusion/output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2_complete/eval/epoch_no_number/val/official_ckpt_full_eval/log_eval_20260514-093632.txt,VoD official-checkpoint evaluation using val info split.,ok,Driving corridor area;Entire annotated area,0

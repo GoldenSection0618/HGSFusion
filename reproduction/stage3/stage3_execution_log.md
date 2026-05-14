@@ -564,3 +564,55 @@ Out of scope:
   - local temp parser outputs (untracked): /tmp/stage3_vod_noinfertime_w2_partial_metrics.json, /tmp/stage3_metrics_summary_partial.csv
 - reason: run the same contract/metric tools on the retry output as required, while explicitly treating this as partial-run diagnostics
 - next action or blocker: Stage 3A remains blocked by runtime throughput; TJ4D full eval deferred pending explicit instruction
+
+### 2026-05-14T13:37:21+08:00
+- title: Stage 3A clean full VoD completion with no_infer_time (fresh output tag)
+- current branch: hgsfusion-stage3-full-official-eval
+- working directory: /home/user/HGSFusion_research/HGSFusion
+- command block executed:
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  export CUDA_VISIBLE_DEVICES=0
+  export HGSFUSION_WORKDIR=/home/user/HGSFusion_research
+  export HGSFUSION_REPO=/home/user/HGSFusion_research/HGSFusion
+  export HGSFUSION_DATA_ROOT=/home/user/HGSFusion_research/HGSFusion/data
+  export CUDA_HOME=/usr/local/cuda-11.7
+  export PYTHONFAULTHANDLER=1
+  python tools/test.py --cfg_file reproduction/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval.yaml --ckpt /home/user/HGSFusion_research/checkpoints/hgsfusion_vod.pth --batch_size 1 --workers 2 --extra_tag stage3_vod_full_eval_noinfertime_w2_complete --eval_tag official_ckpt_full_eval --no_infer_time
+- exit status: 0
+- important output excerpt:
+  - Generate label finished(sec_per_example: 10.9768 second).
+  - Average predicted number of objects(1296 samples): 10.353
+  - Entire annotated area / Driving corridor area / mAP sections present
+  - Result is saved to .../stage3_vod_full_eval_noinfertime_w2_complete/.../official_ckpt_full_eval
+  - ****************Evaluation done.*****************
+- files changed:
+  - local runtime artifact dir (untracked): output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2_complete/eval/epoch_no_number/val/official_ckpt_full_eval/
+- reason: execute clean full Stage 3A VoD completion attempt using fresh extra_tag without mixing interrupted partial outputs
+- next action or blocker: locate actual eval dir, then run contract checker and metric parser on this completed run
+
+### 2026-05-14T13:37:21+08:00
+- title: Stage 3A completed eval-dir locate and validation tools
+- current branch: hgsfusion-stage3-full-official-eval
+- working directory: /home/user/HGSFusion_research/HGSFusion
+- command block executed:
+  find output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval -type d -path '*stage3_vod_full_eval_noinfertime_w2_complete/eval/epoch_no_number/val/official_ckpt_full_eval' | sort
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  EVAL_DIR=output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2_complete/eval/epoch_no_number/val/official_ckpt_full_eval
+  python reproduction/stage3/scripts/stage3_eval_contract_check.py --dataset vod --info-pkl data/vod_radar_5frames/kitti_infos_val.pkl --eval-dir "$EVAL_DIR"
+  python reproduction/stage3/scripts/stage3_parse_eval_metrics.py --dataset vod --eval-dir "$EVAL_DIR" --out-json reproduction/stage3/vod_stage3_metrics.json --out-csv reproduction/stage3/stage3_metrics_summary.csv
+- exit status:
+  - eval-dir locate: 0
+  - contract checker: 0 (PASS)
+  - metric parser: 0 (status ok)
+- important output excerpt:
+  - eval dir: output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2_complete/eval/epoch_no_number/val/official_ckpt_full_eval
+  - contract: result_pkl_exists=True, result_count=1296, prediction_txt_count=1296, completion markers all True, contract_check=PASS
+  - parser: status=ok, parser_notes_count=0
+- files changed:
+  - reproduction/stage3/vod_stage3_metrics.json
+  - reproduction/stage3/stage3_metrics_summary.csv
+  - reproduction/stage3/stage3_execution_log.md
+- reason: validate Stage 3A clean run against artifact contract and metric parsing requirements before any TJ4D execution
+- next action or blocker: update Stage 3 notes and commit allowed tracked changes only
