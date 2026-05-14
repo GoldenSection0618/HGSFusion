@@ -253,3 +253,46 @@ Out of scope:
   - `reproduction/stage3/stage3_execution_log.md`
 - reason: add Stage 3 full-evaluation artifact contract validator required by execution plan
 - next action or blocker: implement Stage 3 metric parser script and validate CLI
+
+### 2026-05-14T08:48:36+08:00
+- current branch: `hgsfusion-stage3-full-official-eval`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  find output -path '*stage2_vod_subset20*log_eval_*.txt' -type f | sort | tail -n 2
+  find output -path '*stage2_tj4d_subset20*log_eval_*.txt' -type f | sort | tail -n 2
+  sed -n '1,260p' output/.../stage2_vod_subset20/.../log_eval_20260514-000139.txt
+  sed -n '1,320p' output/.../stage2_tj4d_subset20/.../log_eval_20260514-000535.txt
+  ```
+- exit status: `0`
+- important output excerpt:
+  - confirmed VoD section markers: `Entire annotated area`, `Driving corridor area`, `mAP`
+  - confirmed TJ4D weather markers: `Evaluating dark|standard|shiny|all_weather`
+  - confirmed completion markers: `Result is saved`, `Evaluation done`
+  - identified parseable metric line formats for conservative parser implementation
+- files changed:
+  - none (read-only)
+- reason: inspect real log format before implementing Stage 3 metric parser
+- next action or blocker: implement `stage3_parse_eval_metrics.py` and validate CLI
+
+### 2026-05-14T08:48:36+08:00
+- current branch: `hgsfusion-stage3-full-official-eval`
+- working directory: `/home/user/HGSFusion_research/HGSFusion`
+- command block executed:
+  ```bash
+  create reproduction/stage3/scripts/stage3_parse_eval_metrics.py
+  chmod +x reproduction/stage3/scripts/stage3_parse_eval_metrics.py
+  python reproduction/stage3/scripts/stage3_parse_eval_metrics.py --help
+  ```
+- exit status: `0`
+- important output excerpt:
+  - CLI validated: `--dataset`, `--eval-dir`, `--out-json`, `--out-csv`
+  - parser supports log discovery from eval dir and nearby parents
+  - parser writes structured JSON and upserts summary CSV row
+  - conservative behavior: stores `metrics.raw_lines` and parser notes when numeric extraction is partial
+  - exit codes implemented: `0` success, `1` required sections missing, `2` missing/invalid path
+- files changed:
+  - `reproduction/stage3/scripts/stage3_parse_eval_metrics.py`
+  - `reproduction/stage3/stage3_execution_log.md`
+- reason: add required Stage 3 metric parsing utility and summary writer
+- next action or blocker: run Stage 3 pre-full-eval data/checkpoint audit and record counts
