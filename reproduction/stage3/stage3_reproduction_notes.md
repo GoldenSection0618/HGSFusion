@@ -57,6 +57,9 @@
   - `final_result/data`: exists with `7` prediction txt files
   - eval log: `log_eval_20260514-085013.txt`, completion markers absent
   - contract check: `FAIL` (`exit 1`) due incomplete artifacts/markers
+- partial artifact diagnostic for no-infer-time full retry (`stage3_vod_full_eval_noinfertime_w2`):
+  - contract check: `FAIL` (`exit 1`) with `prediction_txt_count=51`, `result.pkl` missing, completion markers absent
+  - metric parser: `exit 1` (`missing_required_sections`) on partial log; diagnostic outputs written only to `/tmp`
 - interpretation boundary:
   - runtime-control fix materially improved throughput
   - Stage 3A full completion remains blocked in this execution window due hardware/runtime throughput

@@ -540,3 +540,27 @@ Out of scope:
   - local runtime artifact dir (untracked): output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2/eval/epoch_no_number/val/official_ckpt_full_eval/
 - reason: execute required full-VoD retry after confirmed speed improvement from no_infer_time runtime-control adjustment
 - next action or blocker: keep Stage 3A as blocked by hardware/runtime throughput; do not proceed to TJ4D full eval unless explicitly instructed
+
+### 2026-05-14T09:15:26+08:00
+- title: Stage 3A partial full-retry artifact checks (diagnostic)
+- current branch: hgsfusion-stage3-full-official-eval
+- working directory: /home/user/HGSFusion_research/HGSFusion
+- command block executed:
+  source /home/user/miniforge3/etc/profile.d/conda.sh
+  conda activate hgsfusion_a17
+  EVAL_DIR=output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2/eval/epoch_no_number/val/official_ckpt_full_eval
+  python reproduction/stage3/scripts/stage3_eval_contract_check.py --dataset vod --info-pkl data/vod_radar_5frames/kitti_infos_val.pkl --eval-dir     output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2/eval/epoch_no_number/val/official_ckpt_full_eval
+  python reproduction/stage3/scripts/stage3_parse_eval_metrics.py --dataset vod --eval-dir     output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2/eval/epoch_no_number/val/official_ckpt_full_eval     --out-json /tmp/stage3_vod_noinfertime_w2_partial_metrics.json     --out-csv /tmp/stage3_metrics_summary_partial.csv
+- exit status:
+  - contract checker: 1
+  - metric parser: 1
+- important output excerpt:
+  - contract checker reported expected partial-run failures: missing result.pkl, prediction txt 51 vs info 1296, completion markers absent
+  - parser found log file but returned status missing_required_sections with parser_notes_count 3
+  - outputs written to /tmp for diagnosis only; not used as Stage 3 success records
+- files changed:
+  - reproduction/stage3/stage3_execution_log.md
+  - local runtime artifact dir (untracked): output/stage3/local_cfgs/hgsfusion_vod_stage3_full_eval/stage3_vod_full_eval_noinfertime_w2/eval/epoch_no_number/val/official_ckpt_full_eval/
+  - local temp parser outputs (untracked): /tmp/stage3_vod_noinfertime_w2_partial_metrics.json, /tmp/stage3_metrics_summary_partial.csv
+- reason: run the same contract/metric tools on the retry output as required, while explicitly treating this as partial-run diagnostics
+- next action or blocker: Stage 3A remains blocked by runtime throughput; TJ4D full eval deferred pending explicit instruction
